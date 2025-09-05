@@ -1,0 +1,102 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    /* Modern gradient primary - purple to pink */
+    --primary: 262.1 83.3% 57.8%;
+    --primary-foreground: 210 40% 98%;
+    /* Warm orange secondary for accents */
+    --secondary: 24.6 95% 53.1%;
+    --secondary-foreground: 60 9.1% 97.8%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    /* Accent color for highlights */
+    --accent: 262.1 83.3% 57.8%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 262.1 83.3% 57.8%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    /* Brighter purple for dark mode */
+    --primary: 262.1 83.3% 65%;
+    --primary-foreground: 222.2 84% 4.9%;
+    /* Brighter orange for dark mode */
+    --secondary: 24.6 95% 60%;
+    --secondary-foreground: 222.2 84% 4.9%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 262.1 83.3% 65%;
+    --accent-foreground: 222.2 84% 4.9%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 262.1 83.3% 65%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    /* Subtle background pattern for more visual interest */
+    background-image: 
+      radial-gradient(circle at 1px 1px, hsl(var(--muted-foreground) / 0.15) 1px, transparent 0);
+    background-size: 20px 20px;
+  }
+  
+  /* Dark mode background adjustment */
+  .dark body {
+    background-image: 
+      radial-gradient(circle at 1px 1px, hsl(var(--muted-foreground) / 0.1) 1px, transparent 0);
+  }
+}
+
+@layer utilities {
+  /* Custom gradient utilities for more attractive colors */
+  .bg-gradient-primary {
+    background: linear-gradient(135deg, hsl(262.1 83.3% 57.8%), hsl(262.1 83.3% 70%));
+  }
+  
+  .bg-gradient-secondary {
+    background: linear-gradient(135deg, hsl(24.6 95% 53.1%), hsl(24.6 95% 65%));
+  }
+  
+  .bg-gradient-warm {
+    background: linear-gradient(135deg, hsl(262.1 83.3% 57.8%), hsl(24.6 95% 53.1%));
+  }
+  
+  .text-gradient-primary {
+    background: linear-gradient(135deg, hsl(262.1 83.3% 57.8%), hsl(24.6 95% 53.1%));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .border-gradient-primary {
+    border: 2px solid transparent;
+    background: linear-gradient(white, white) padding-box,
+                linear-gradient(135deg, hsl(262.1 83.3% 57.8%), hsl(24.6 95% 53.1%)) border-box;
+  }
+}

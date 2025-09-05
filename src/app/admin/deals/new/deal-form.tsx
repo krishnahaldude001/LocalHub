@@ -1,0 +1,332 @@
+"use client"
+
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Badge } from '@/components/ui/badge'
+import { config } from '@/lib/config'
+import { stringifyGallery } from '@/lib/db'
+import { Save, Plus, X } from 'lucide-react'
+
+interface Platform {
+  id: string
+  name: string
+  slug: string
+  color: string
+}
+
+export default function DealForm() {
+  const router = useRouter()
+  const [isLoading, setIsLoading] = useState(false)
+  const [platforms, setPlatforms] = useState<Platform[]>([])
+  const [galleryImages, setGalleryImages] = useState<string[]>([''])
+
+  const [formData, setFormData] = useState({
+    title: '',
+    description: '',
+    price: '',
+    salePrice: '',
+    platformId: '',
+    affiliateUrl: '',
+    rating: '4.0',
+    cod: true,
+    image: '',
+    area: config.defaultLocation.areas[0]
+  })
+
+  // Fetch platforms on component mount
+  useEffect(() => {
+    const fetchPlatforms = async () => {
+      try {
+        const response = await fetch('/api/admin/platforms')
+        if (response.ok) {
+          const platformsData = await response.json()
+          setPlatforms(platformsData)
+          // Set default platform if available
+          if (platformsData.length > 0 && !formData.platformId) {
+            setFormData(prev => ({ ...prev, platformId: platformsData[0].id }))
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch platforms:', error)
+      }
+    }
+    fetchPlatforms()
+  }, [])
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const { name, value, type } = e.target
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value
+    }))
+  }
+
+  const addGalleryImage = () => {
+    setGalleryImages(prev => [...prev, ''])
+  }
+
+  const removeGalleryImage = (index: number) => {
+    setGalleryImages(prev => prev.filter((_, i) => i !== index))
+  }
+
+  const updateGalleryImage = (index: number, value: string) => {
+    setGalleryImages(prev => prev.map((img, i) => i === index ? value : img))
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsLoading(true)
+
+    try {
+      // Generate slug from title
+      const slug = formData.title
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '')
+
+      // Prepare gallery data
+      const gallery = galleryImages.filter(img => img.trim() !== '')
+
+      const dealData = {
+        slug,
+        title: formData.title,
+        description: formData.description,
+        price: parseFloat(formData.price),
+        salePrice: formData.salePrice ? parseFloat(formData.salePrice) : null,
+        platformId: formData.platformId,
+        affiliateUrl: formData.affiliateUrl,
+        rating: parseFloat(formData.rating),
+        cod: formData.cod,
+        image: formData.image,
+        gallery: stringifyGallery(gallery),
+        area: formData.area
+      }
+
+      const response = await fetch('/api/admin/deals', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(dealData),
+      })
+
+      if (response.ok) {
+        router.push('/admin')
+        router.refresh()
+      } else {
+        throw new Error('Failed to create deal')
+      }
+    } catch (error) {
+      console.error('Error creating deal:', error)
+      alert('Failed to create deal. Please try again.')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Basic Information */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="space-y-2">
+          <Label htmlFor="title">Product Title *</Label>
+          <Input
+            id="title"
+            name="title"
+            value={formData.title}
+            onChange={handleInputChange}
+            placeholder="e.g., Echo Dot (4th Gen) - Smart Speaker"
+            required
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="platformId">Platform *</Label>
+          <select
+            id="platformId"
+            name="platformId"
+            value={formData.platformId}
+            onChange={handleInputChange}
+            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            required
+          >
+            <option value="">Select a platform</option>
+            {platforms.map((platform) => (
+              <option key={platform.id} value={platform.id}>
+                {platform.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="description">Description *</Label>
+        <textarea
+          id="description"
+          name="description"
+          value={formData.description}
+          onChange={handleInputChange}
+          placeholder="Describe the product and its features..."
+          className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+          required
+        />
+      </div>
+
+      {/* Pricing */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="space-y-2">
+          <Label htmlFor="price">Original Price (₹) *</Label>
+          <Input
+            id="price"
+            name="price"
+            type="number"
+            value={formData.price}
+            onChange={handleInputChange}
+            placeholder="4999"
+            required
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="salePrice">Sale Price (₹)</Label>
+          <Input
+            id="salePrice"
+            name="salePrice"
+            type="number"
+            value={formData.salePrice}
+            onChange={handleInputChange}
+            placeholder="2999"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="rating">Rating (0-5) *</Label>
+          <Input
+            id="rating"
+            name="rating"
+            type="number"
+            step="0.1"
+            min="0"
+            max="5"
+            value={formData.rating}
+            onChange={handleInputChange}
+            placeholder="4.5"
+            required
+          />
+        </div>
+      </div>
+
+      {/* URLs and Location */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="space-y-2">
+          <Label htmlFor="affiliateUrl">Affiliate URL *</Label>
+          <Input
+            id="affiliateUrl"
+            name="affiliateUrl"
+            type="url"
+            value={formData.affiliateUrl}
+            onChange={handleInputChange}
+            placeholder="https://amzn.to/example"
+            required
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="area">Area *</Label>
+          <select
+            id="area"
+            name="area"
+            value={formData.area}
+            onChange={handleInputChange}
+            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            required
+          >
+            {config.defaultLocation.areas.map(area => (
+              <option key={area} value={area}>{area}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      {/* Main Image */}
+      <div className="space-y-2">
+        <Label htmlFor="image">Main Image URL *</Label>
+        <Input
+          id="image"
+          name="image"
+          type="url"
+          value={formData.image}
+          onChange={handleInputChange}
+          placeholder="https://images.unsplash.com/photo-..."
+          required
+        />
+      </div>
+
+      {/* Gallery Images */}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <Label>Gallery Images</Label>
+          <Button type="button" variant="outline" size="sm" onClick={addGalleryImage}>
+            <Plus className="h-4 w-4 mr-2" />
+            Add Image
+          </Button>
+        </div>
+        {galleryImages.map((image, index) => (
+          <div key={index} className="flex items-center gap-2">
+            <Input
+              value={image}
+              onChange={(e) => updateGalleryImage(index, e.target.value)}
+              placeholder="https://images.unsplash.com/photo-..."
+              className="flex-1"
+            />
+            {galleryImages.length > 1 && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => removeGalleryImage(index)}
+                className="text-red-500 hover:text-red-700"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* COD Option */}
+      <div className="flex items-center space-x-2">
+        <input
+          id="cod"
+          name="cod"
+          type="checkbox"
+          checked={formData.cod}
+          onChange={handleInputChange}
+          className="h-4 w-4 rounded border-gray-300"
+        />
+        <Label htmlFor="cod">Cash on Delivery Available</Label>
+      </div>
+
+      {/* Submit Button */}
+      <div className="flex justify-end gap-4">
+        <Button type="button" variant="outline" onClick={() => router.push('/admin')}>
+          Cancel
+        </Button>
+        <Button type="submit" disabled={isLoading}>
+          {isLoading ? (
+            'Creating...'
+          ) : (
+            <>
+              <Save className="h-4 w-4 mr-2" />
+              Create Deal
+            </>
+          )}
+        </Button>
+      </div>
+    </form>
+  )
+}
