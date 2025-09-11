@@ -1,13 +1,9 @@
-import { Metadata } from 'next'
+'use client'
+
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { ShieldX, Home, ArrowLeft } from 'lucide-react'
-
-export const metadata: Metadata = {
-  title: 'Unauthorized Access | LocalHub',
-  description: 'You do not have permission to access this page',
-}
 
 export default function UnauthorizedPage() {
   return (
