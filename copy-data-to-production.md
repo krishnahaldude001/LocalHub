@@ -30,7 +30,7 @@ checkData();
 ### Step 2: Update Production Database Schema
 ```bash
 # Connect to your production database
-# Set DATABASE_URL to your production database
+# Set DATABASE_URL to your production database (include ?pgbouncer=true&connection_limit=1)
 npx prisma db push
 ```
 
@@ -71,7 +71,7 @@ exportData();
 
 ### Step 2: Import to Production
 ```bash
-# Set your production DATABASE_URL
+# Set your production DATABASE_URL (include ?pgbouncer=true&connection_limit=1)
 # Then run import script
 npx tsx -e "
 import { PrismaClient } from '@prisma/client';
@@ -139,7 +139,7 @@ npx prisma migrate dev --name copy-local-data
 
 ### Step 3: Apply to Production
 ```bash
-# Set production DATABASE_URL
+# Set production DATABASE_URL (include ?pgbouncer=true&connection_limit=1)
 npx prisma migrate deploy
 ```
 
@@ -153,9 +153,9 @@ Create this script to automate the process:
 
 echo "🔄 Copying local data to production..."
 
-# Check if production DATABASE_URL is set
+# Check if production DATABASE_URL is set (should include ?pgbouncer=true&connection_limit=1)
 if [ -z "$DATABASE_URL" ]; then
-  echo "❌ Please set DATABASE_URL to your production database"
+  echo "❌ Please set DATABASE_URL to your production database with ?pgbouncer=true&connection_limit=1"
   exit 1
 fi
 
@@ -194,7 +194,7 @@ After copying, check your production app:
 ## 🆘 Troubleshooting
 
 ### Issue: "Database connection failed"
-**Solution**: Make sure your production `DATABASE_URL` is correct
+**Solution**: Make sure your production `DATABASE_URL` is correct and includes `?pgbouncer=true&connection_limit=1`
 
 ### Issue: "Data not showing"
 **Solution**: Check if the seed scripts ran successfully

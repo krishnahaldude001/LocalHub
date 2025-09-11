@@ -54,6 +54,8 @@ Before you begin, ensure you have the following installed:
    
    # Database (REQUIRED)
    DATABASE_URL="file:./dev.db"
+   # For production use PostgreSQL with pooling:
+   # DATABASE_URL="postgresql://username:password@host:port/database?pgbouncer=true&connection_limit=1"
    
    # Email Configuration (Optional - for magic links)
    EMAIL_SERVER_HOST=smtp.gmail.com
@@ -146,7 +148,7 @@ SQLite is used for development. The schema includes:
 Ensure all required environment variables are set in your production environment:
 - `NEXTAUTH_SECRET`
 - `NEXTAUTH_URL`
-- `DATABASE_URL` (use production database)
+- `DATABASE_URL` (use production database with `?pgbouncer=true&connection_limit=1`)
 - `RAZORPAY_KEY_ID` and `RAZORPAY_KEY_SECRET`
 
 ## 📝 TODO for Phase 2

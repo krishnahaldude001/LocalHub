@@ -26,6 +26,8 @@ Create `.env.local` with these variables:
 ```env
 # Database
 DATABASE_URL="file:./dev.db"
+# For production, use PostgreSQL with connection pooling parameters
+# DATABASE_URL="postgresql://username:password@host:port/database?pgbouncer=true&connection_limit=1"
 
 # NextAuth Configuration
 NEXTAUTH_URL="https://your-domain.com"

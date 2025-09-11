@@ -25,6 +25,8 @@ NEXTAUTH_URL=http://localhost:3000
 
 # Database (REQUIRED)
 DATABASE_URL="file:./dev.db"
+# For production, use your PostgreSQL URL with pooling parameters:
+# DATABASE_URL="postgresql://username:password@host:port/database?pgbouncer=true&connection_limit=1"
 
 # Email Configuration (Optional - for magic links)
 EMAIL_SERVER_HOST=smtp.gmail.com
@@ -51,7 +53,7 @@ EMAIL_FROM=noreply@localhub.com
 #### **Required Variables:**
 ```
 Name: DATABASE_URL
-Value: postgresql://username:password@host:port/database
+Value: postgresql://username:password@host:port/database?pgbouncer=true&connection_limit=1
 Environment: Production, Preview, Development
 
 Name: NEXTAUTH_URL
@@ -136,7 +138,7 @@ git push origin main
 **Solution:** Make sure you've set the variable in Vercel dashboard and redeployed
 
 ### Issue: "Database connection failed"
-**Solution:** Check your `DATABASE_URL` in Vercel matches your production database
+**Solution:** Check your `DATABASE_URL` in Vercel matches your production database and includes `?pgbouncer=true&connection_limit=1`
 
 ### Issue: "Authentication not working"
 **Solution:** Verify `NEXTAUTH_URL` matches your Vercel domain exactly

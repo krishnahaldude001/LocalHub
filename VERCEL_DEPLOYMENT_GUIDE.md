@@ -74,7 +74,8 @@ vercel storage create postgres
 ```
 - Choose a name: `localhub-db`
 - Choose a region: `Washington, D.C., USA` (or closest to your users)
-- This will give you a `DATABASE_URL` - **SAVE THIS!**
+- This will give you a `DATABASE_URL` – **SAVE THIS!**
+- For Prisma on Vercel, append `?pgbouncer=true&connection_limit=1` to this URL
 
 ### **Option B: Supabase (Free Alternative)**
 
@@ -140,7 +141,7 @@ Click **"Add New"** for each variable below:
 
 #### **Database URL**
 - **Name**: `DATABASE_URL`
-- **Value**: Paste the database URL you saved from Step 2
+- **Value**: Paste the database URL from Step 2 and append `?pgbouncer=true&connection_limit=1`
 - **Environment**: Production, Preview, Development (select all)
 - Click **"Save"**
 
@@ -337,7 +338,7 @@ Your LocalHub application is now ready to start making money:
 
 ### **Issue 1: "Database Connection Error"**
 **Solution:**
-1. Check your `DATABASE_URL` in Vercel environment variables
+1. Check your `DATABASE_URL` in Vercel environment variables (ensure it includes `?pgbouncer=true&connection_limit=1`)
 2. Make sure your database is running (Vercel Postgres or Supabase)
 3. Redeploy your application
 
