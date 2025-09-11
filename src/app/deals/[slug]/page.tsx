@@ -11,6 +11,9 @@ import Image from 'next/image'
 import { ArrowLeft, Star, MapPin, Calendar, ExternalLink, ShoppingCart, CreditCard } from 'lucide-react'
 import DealClient from './deal-client'
 
+// Force dynamic rendering to avoid build-time database calls
+export const dynamic = 'force-dynamic'
+
 interface DealsPageProps {
   params: {
     slug: string

@@ -11,6 +11,9 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { ArrowLeft, Calendar, MapPin, User, Tag } from 'lucide-react'
 
+// Force dynamic rendering to avoid build-time database calls
+export const dynamic = 'force-dynamic'
+
 interface NewsPageProps {
   params: {
     slug: string

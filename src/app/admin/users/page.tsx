@@ -8,6 +8,9 @@ import { formatDate } from '@/lib/utils'
 import Link from 'next/link'
 import { Plus, Edit, Trash2, Users, UserCheck, UserX, Crown, PenTool, ShoppingBag, Newspaper } from 'lucide-react'
 
+// Force dynamic rendering to avoid build-time database calls
+export const dynamic = 'force-dynamic'
+
 export const metadata: Metadata = {
   title: 'User Management | Admin Dashboard',
   description: 'Manage users and their roles',

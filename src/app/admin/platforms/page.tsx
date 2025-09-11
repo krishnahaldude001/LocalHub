@@ -5,6 +5,9 @@ import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/db'
 import PlatformManagement from './platform-management'
 
+// Force dynamic rendering to avoid build-time database calls
+export const dynamic = 'force-dynamic'
+
 export const metadata: Metadata = {
   title: 'Platform Management - LocalHub Admin',
   description: 'Manage e-commerce platforms for deals',

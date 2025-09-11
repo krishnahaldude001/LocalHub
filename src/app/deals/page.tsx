@@ -9,6 +9,9 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { ArrowRight, Star, MapPin, Calendar } from 'lucide-react'
 
+// Force dynamic rendering to avoid build-time database calls
+export const dynamic = 'force-dynamic'
+
 export const metadata: Metadata = {
   title: `Best Deals | ${config.appName}`,
   description: `Discover amazing deals and offers from top platforms in ${config.defaultLocation.areas.join(', ')} areas.`,

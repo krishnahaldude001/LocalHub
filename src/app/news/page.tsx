@@ -9,6 +9,9 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { ArrowRight, Calendar, MapPin } from 'lucide-react'
 
+// Force dynamic rendering to avoid build-time database calls
+export const dynamic = 'force-dynamic'
+
 export const metadata: Metadata = {
   title: `Latest News | ${config.appName}`,
   description: `Stay updated with the latest news and community updates from ${config.defaultLocation.areas.join(', ')} areas.`,

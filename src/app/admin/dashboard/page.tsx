@@ -24,6 +24,9 @@ import {
   Globe
 } from 'lucide-react'
 
+// Force dynamic rendering to avoid build-time database calls
+export const dynamic = 'force-dynamic'
+
 export const metadata: Metadata = {
   title: 'Admin Dashboard | LocalHub',
   description: 'Complete control panel for LocalHub website management',

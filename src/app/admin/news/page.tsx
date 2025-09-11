@@ -8,6 +8,9 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Plus, Edit, Trash2, Eye, Calendar, MapPin, Tag } from 'lucide-react'
 
+// Force dynamic rendering to avoid build-time database calls
+export const dynamic = 'force-dynamic'
+
 export const metadata: Metadata = {
   title: 'News Management | Admin Dashboard',
   description: 'Manage news articles and content',

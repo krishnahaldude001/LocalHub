@@ -15,6 +15,9 @@ import {
 } from 'lucide-react'
 import AnalyticsCharts from './analytics-charts'
 
+// Force dynamic rendering to avoid build-time database calls
+export const dynamic = 'force-dynamic'
+
 export const metadata: Metadata = {
   title: 'Analytics Dashboard | Admin Dashboard',
   description: 'View performance metrics and analytics',
