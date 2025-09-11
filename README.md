@@ -1,6 +1,6 @@
-# GovandiHub - Local Mini-Blog & Deals Hub
+# LocalHub - Local Mini-Blog & Deals Hub
 
-A production-ready MVP for a mobile-first mini-blog and deals hub focused on the Govandi, Shivaji Nagar, and Baiganwadi areas of Mumbai.
+A production-ready MVP for a mobile-first mini-blog and deals hub focused on local communities. Currently configured for Govandi, Shivaji Nagar, and Baiganwadi areas of Mumbai, but easily customizable for any location.
 
 ## 🚀 Features
 
@@ -41,25 +41,26 @@ Before you begin, ensure you have the following installed:
    ```
 
 3. **Set up environment variables**
-   Create a `.env.local` file in the root directory:
+   Copy the example file and customize it:
+   ```bash
+   cp .env.example .env.local
+   ```
+   
+   Then edit `.env.local` with your values:
    ```env
-   # NextAuth Configuration
-   NEXTAUTH_SECRET=your-secret-key-here
+   # NextAuth Configuration (REQUIRED)
+   NEXTAUTH_SECRET=your-super-secret-key-here-minimum-32-characters
    NEXTAUTH_URL=http://localhost:3000
    
-   # Email Provider (for NextAuth)
+   # Database (REQUIRED)
+   DATABASE_URL="file:./dev.db"
+   
+   # Email Configuration (Optional - for magic links)
    EMAIL_SERVER_HOST=smtp.gmail.com
    EMAIL_SERVER_PORT=587
    EMAIL_SERVER_USER=your-email@gmail.com
    EMAIL_SERVER_PASSWORD=your-app-password
-   EMAIL_FROM=noreply@govandihub.com
-   
-   # Database
-   DATABASE_URL="file:./dev.db"
-   
-   # Razorpay (for production)
-   RAZORPAY_KEY_ID=your-razorpay-key
-   RAZORPAY_KEY_SECRET=your-razorpay-secret
+   EMAIL_FROM=noreply@localhub.com
    ```
 
 4. **Set up the database**
