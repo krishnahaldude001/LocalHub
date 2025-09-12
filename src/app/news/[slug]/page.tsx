@@ -7,9 +7,12 @@ import { prisma } from '@/lib/db'
 import { config } from '@/lib/config'
 import { formatDate } from '@/lib/utils'
 import RichTextRenderer from '@/components/rich-text-renderer'
+import YouTubeEmbed from '@/components/youtube-embed'
+import { extractYouTubeFromContent } from '@/lib/content-utils'
 import Link from 'next/link'
 import Image from 'next/image'
 import { ArrowLeft, Calendar, MapPin, User, Tag } from 'lucide-react'
+import ViewTracker from '@/components/view-tracker'
 
 // Force dynamic rendering to avoid build-time database calls
 export const dynamic = 'force-dynamic'
@@ -75,6 +78,9 @@ export default async function NewsPage({ params }: NewsPageProps) {
 
   return (
     <div className="container mx-auto px-4 py-8">
+      {/* View Tracker */}
+      <ViewTracker type="post" contentId={post.id} />
+      
       {/* Back Button */}
       <div className="mb-6">
         <Link href="/news">
@@ -127,6 +133,24 @@ export default async function NewsPage({ params }: NewsPageProps) {
           <p className="text-xl text-muted-foreground mb-6 leading-relaxed">
             {post.excerpt}
           </p>
+          
+          {/* YouTube Video */}
+          {(() => {
+            const youtubeUrl = extractYouTubeFromContent(post.content)
+            if (youtubeUrl) {
+              return (
+                <div className="mb-8">
+                  <YouTubeEmbed 
+                    url={youtubeUrl} 
+                    title={post.title}
+                    className="w-full"
+                  />
+                </div>
+              )
+            }
+            return null
+          })()}
+          
           <div className="text-base leading-relaxed">
             <RichTextRenderer content={post.content} />
           </div>

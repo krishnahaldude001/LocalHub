@@ -25,10 +25,12 @@ model Deal {
   cod          Boolean  @default(false)
   image        String?
   gallery      String?  // JSON string of image URLs array
+  youtubeUrl   String?  // YouTube video URL for embedded videos
   area         String   // Govandi, Shivaji Nagar, Baiganwadi
   publishedAt  DateTime @default(now())
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+  viewCount    Int      @default(0) // Track page views
 
   clicks Click[]
 
@@ -126,6 +128,7 @@ model Post {
   excerpt     String
   content     String
   image       String
+  youtubeUrl  String?  // YouTube video URL for embedded videos
   category    String
   area        String
   author      String
@@ -133,6 +136,41 @@ model Post {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   published   Boolean  @default(true)
+  viewCount   Int      @default(0) // Track page views
 
   @@map("posts")
+}
+
+// Election model for tracking election-related content
+model Election {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  title       String
+  description String?
+  content     String
+  image       String?
+  youtubeUrl  String?  // YouTube video URL for embedded videos
+  category    String   // "candidate", "party", "issue", "poll"
+  area        String
+  author      String
+  publishedAt DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  published   Boolean  @default(true)
+  viewCount   Int      @default(0) // Track page views
+
+  @@map("elections")
+}
+
+// Universal view tracking model
+model View {
+  id        String   @id @default(cuid())
+  type      String   // "deal", "post", "election"
+  contentId String   // ID of the content being viewed
+  userAgent String?  // Browser info
+  ipAddress String?  // IP address (for analytics)
+  referrer  String?  // Where they came from
+  createdAt DateTime @default(now())
+
+  @@map("views")
 }

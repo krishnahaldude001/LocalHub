@@ -12,6 +12,7 @@ import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMe
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { useTheme } from 'next-themes'
 import { config, getAreasForLocation } from '@/lib/config'
+import LocationSelector from '@/components/location-selector'
 import { canAccessAdmin, getAdminNavItems, type UserRole } from '@/lib/roles'
 
 type Area = string
@@ -31,6 +32,9 @@ export default function Header() {
     const availableAreas = getAreasForLocation()
     if (savedArea && availableAreas.includes(savedArea)) {
       setSelectedArea(savedArea)
+    } else {
+      // Reset to first area if saved area is not available
+      setSelectedArea(availableAreas[0])
     }
   }, [])
 
@@ -132,23 +136,11 @@ export default function Header() {
           <div className="flex items-center space-x-4">
             {/* Area Selector */}
             <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="hidden sm:flex">
-                  <MapPin className="h-4 w-4 mr-2" />
-                  {selectedArea}
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                {getAreasForLocation().map((area) => (
-                  <DropdownMenuItem
-                    key={area}
-                    onClick={() => setSelectedArea(area)}
-                    className={selectedArea === area ? 'bg-accent' : ''}
-                  >
-                    {area}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
+              <LocationSelector 
+                currentArea={selectedArea}
+                onAreaChange={setSelectedArea}
+                className="hidden sm:block"
+              />
             </DropdownMenu>
 
             {/* Search */}
@@ -240,16 +232,11 @@ export default function Header() {
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Select Area</label>
                     <div className="flex flex-wrap gap-2">
-                      {getAreasForLocation().map((area) => (
-                        <Button
-                          key={area}
-                          variant={selectedArea === area ? 'default' : 'outline'}
-                          size="sm"
-                          onClick={() => setSelectedArea(area)}
-                        >
-                          {area}
-                        </Button>
-                      ))}
+                      <LocationSelector 
+                        currentArea={selectedArea}
+                        onAreaChange={setSelectedArea}
+                        className="w-full"
+                      />
                     </div>
                   </div>
 

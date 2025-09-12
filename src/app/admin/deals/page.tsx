@@ -2,7 +2,7 @@ import { Metadata } from 'next'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { prisma, parseGallery } from '@/lib/db'
+import { getDeals } from '@/lib/simple-db'
 import { formatDate, formatPrice, getPlatformColor, getPlatformName } from '@/lib/utils'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -17,22 +17,14 @@ export const metadata: Metadata = {
 }
 
 export default async function DealsManagementPage() {
-  // Fetch all deals from database
-  const deals = await prisma.deal.findMany({
-    orderBy: { createdAt: 'desc' },
-    include: {
-      platform: true,
-      _count: {
-        select: { clicks: true }
-      }
-    }
-  })
+  // Fetch all deals from database using simple connection
+  const deals = await getDeals(100) // Get more deals for management page
 
   // Transform deals data
   const dealsData = deals.map(deal => ({
     ...deal,
-    gallery: parseGallery(deal.gallery),
-    clickCount: deal._count.clicks
+    gallery: deal.gallery, // Already processed in simple-db
+    clickCount: deal._count?.clicks || 0
   }))
 
   return (

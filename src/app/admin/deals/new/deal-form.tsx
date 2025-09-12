@@ -33,6 +33,7 @@ export default function DealForm() {
     rating: '4.0',
     cod: true,
     image: '',
+    youtubeUrl: '',
     area: config.defaultLocation.areas[0]
   })
 
@@ -101,6 +102,7 @@ export default function DealForm() {
         rating: parseFloat(formData.rating),
         cod: formData.cod,
         image: formData.image,
+        youtubeUrl: formData.youtubeUrl,
         gallery: stringifyGallery(gallery),
         area: formData.area
       }
@@ -264,6 +266,22 @@ export default function DealForm() {
           placeholder="https://images.unsplash.com/photo-..."
           required
         />
+      </div>
+
+      {/* YouTube Video */}
+      <div className="space-y-2">
+        <Label htmlFor="youtubeUrl">YouTube Video URL (Optional)</Label>
+        <Input
+          id="youtubeUrl"
+          name="youtubeUrl"
+          type="url"
+          value={formData.youtubeUrl}
+          onChange={handleInputChange}
+          placeholder="https://www.youtube.com/watch?v=..."
+        />
+        <p className="text-sm text-muted-foreground">
+          Add a YouTube video URL to embed a product review or demo video
+        </p>
       </div>
 
       {/* Gallery Images */}

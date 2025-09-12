@@ -5,8 +5,8 @@ export const runtime = 'edge'
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
-  const title = searchParams.get('title') || 'GovandiHub'
-  const subtitle = searchParams.get('subtitle') || 'Local News & Deals'
+  const title = searchParams.get('title') || 'LocalHub'
+  const subtitle = searchParams.get('subtitle') || 'Mumbai Local News & Deals'
 
   return new ImageResponse(
     (
@@ -106,7 +106,7 @@ export async function GET(request: NextRequest) {
             opacity: 0.8,
           }}
         >
-          <span>📍 Govandi • Shivaji Nagar • Baiganwadi</span>
+          <span>📍 Mumbai • Govandi • Shivaji Nagar • Baiganwadi</span>
         </div>
       </div>
     ),

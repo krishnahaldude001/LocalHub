@@ -2,7 +2,7 @@ import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { prisma } from '@/lib/db'
+import { getDealById } from '@/lib/simple-db'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 import EditDealForm from './edit-deal-form'
@@ -19,10 +19,7 @@ export const metadata: Metadata = {
 }
 
 export default async function EditDealPage({ params }: EditDealPageProps) {
-  const deal = await prisma.deal.findUnique({
-    where: { id: params.id },
-    include: { platform: true }
-  })
+  const deal = await getDealById(params.id)
 
   if (!deal) {
     notFound()

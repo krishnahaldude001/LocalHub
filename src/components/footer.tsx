@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { Separator } from '@/components/ui/separator'
+import { config } from '@/lib/config'
 
 export default function Footer() {
   const currentYear = new Date().getFullYear()
@@ -12,12 +13,12 @@ export default function Footer() {
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
               <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-sm">GH</span>
+                <span className="text-primary-foreground font-bold text-sm">LO</span>
               </div>
-              <span className="font-bold text-lg">GovandiHub</span>
+              <span className="font-bold text-lg">{config.appName}</span>
             </div>
             <p className="text-sm text-muted-foreground">
-              Your local hub for news, deals, and community updates in Govandi, Shivaji Nagar, and Baiganwadi areas.
+              Your local hub for news, deals, and community updates in Mumbai - covering {config.defaultLocation.areas.slice(0, 3).join(', ')} and more areas.
             </p>
           </div>
 
@@ -99,7 +100,7 @@ export default function Footer() {
         {/* Bottom */}
         <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
           <p className="text-sm text-muted-foreground">
-            © {currentYear} GovandiHub. All rights reserved.
+            © {currentYear} {config.appName}. All rights reserved.
           </p>
           <div className="flex items-center space-x-4 text-sm text-muted-foreground">
             <span>Made with ❤️ for the community</span>

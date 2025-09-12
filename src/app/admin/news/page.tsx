@@ -2,7 +2,7 @@ import { Metadata } from 'next'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { prisma } from '@/lib/db'
+import { getPosts } from '@/lib/simple-db'
 import { formatDate } from '@/lib/utils'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -17,9 +17,7 @@ export const metadata: Metadata = {
 }
 
 export default async function NewsManagementPage() {
-  const news = await prisma.post.findMany({
-    orderBy: { createdAt: 'desc' },
-  })
+  const news = await getPosts(100)
 
   return (
     <div className="container mx-auto px-4 py-8">

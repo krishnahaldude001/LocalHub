@@ -6,10 +6,12 @@ import { Button } from '@/components/ui/button'
 import { config } from '@/lib/config'
 import { formatDate, formatPrice, getDiscountPercentage, getPlatformColor, getPlatformName } from '@/lib/utils'
 import { prisma, parseGallery } from '@/lib/db'
+import YouTubeEmbed from '@/components/youtube-embed'
 import Link from 'next/link'
 import Image from 'next/image'
 import { ArrowLeft, Star, MapPin, Calendar, ExternalLink, ShoppingCart, CreditCard } from 'lucide-react'
 import DealClient from './deal-client'
+import ViewTracker from '@/components/view-tracker'
 
 // Force dynamic rendering to avoid build-time database calls
 export const dynamic = 'force-dynamic'
@@ -79,6 +81,9 @@ export default async function DealsPage({ params }: DealsPageProps) {
 
   return (
     <div className="container mx-auto px-4 py-8">
+      {/* View Tracker */}
+      <ViewTracker type="deal" contentId={deal.id} />
+      
       {/* Back Button */}
       <div className="mb-6">
         <Link href="/deals">
@@ -188,6 +193,18 @@ export default async function DealsPage({ params }: DealsPageProps) {
               </div>
             )}
           </div>
+
+          {/* YouTube Video */}
+          {dealData.youtubeUrl && (
+            <div className="mb-6">
+              <h3 className="text-lg font-semibold mb-3">Product Video</h3>
+              <YouTubeEmbed 
+                url={dealData.youtubeUrl} 
+                title={dealData.title}
+                className="w-full"
+              />
+            </div>
+          )}
 
           {/* CTA Buttons */}
           <div className="space-y-3">

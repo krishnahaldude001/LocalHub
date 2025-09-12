@@ -18,6 +18,7 @@ export default function NewsForm() {
     excerpt: '',
     content: '',
     image: '',
+    youtubeUrl: '',
     area: config.defaultLocation.areas[0],
     author: 'Local News Team',
     category: 'General'
@@ -36,7 +37,7 @@ export default function NewsForm() {
     setIsLoading(true)
 
     try {
-      const response = await fetch('/api/admin/news', {
+      const response = await fetch('/api/news', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -172,6 +173,22 @@ export default function NewsForm() {
           placeholder="https://images.unsplash.com/photo-..."
           required
         />
+      </div>
+
+      {/* YouTube Video */}
+      <div className="space-y-2">
+        <Label htmlFor="youtubeUrl">YouTube Video URL (Optional)</Label>
+        <Input
+          id="youtubeUrl"
+          name="youtubeUrl"
+          type="url"
+          value={formData.youtubeUrl}
+          onChange={handleInputChange}
+          placeholder="https://www.youtube.com/watch?v=..."
+        />
+        <p className="text-sm text-muted-foreground">
+          Add a YouTube video URL to embed a video in your article
+        </p>
       </div>
 
       {/* Submit Button */}

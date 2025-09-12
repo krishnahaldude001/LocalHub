@@ -7,8 +7,8 @@ export const config = {
   
   // Default location (can be overridden)
   defaultLocation: {
-    name: 'Govandi',
-    areas: ['Govandi', 'Shivaji Nagar', 'Baiganwadi'],
+    name: 'Mumbai',
+    areas: ['Govandi', 'Shivaji Nagar', 'Baiganwadi', 'Kurla', 'Ghatkopar', 'Powai', 'Andheri', 'Bandra', 'Dadar', 'Thane'],
     city: 'Mumbai',
     state: 'Maharashtra',
     country: 'India'
@@ -17,22 +17,22 @@ export const config = {
   // Supported locations (for future expansion)
   supportedLocations: [
     {
-      name: 'Govandi',
-      areas: ['Govandi', 'Shivaji Nagar', 'Baiganwadi'],
+      name: 'Mumbai',
+      areas: ['Govandi', 'Shivaji Nagar', 'Baiganwadi', 'Kurla', 'Ghatkopar', 'Powai', 'Andheri', 'Bandra', 'Dadar', 'Thane'],
       city: 'Mumbai',
       state: 'Maharashtra',
       country: 'India'
     },
     {
       name: 'Delhi',
-      areas: ['Connaught Place', 'Karol Bagh', 'Lajpat Nagar'],
+      areas: ['Connaught Place', 'Karol Bagh', 'Lajpat Nagar', 'CP', 'Rajouri Garden', 'Dwarka'],
       city: 'New Delhi',
       state: 'Delhi',
       country: 'India'
     },
     {
       name: 'Bangalore',
-      areas: ['Koramangala', 'Indiranagar', 'Whitefield'],
+      areas: ['Koramangala', 'Indiranagar', 'Whitefield', 'Electronic City', 'Marathahalli', 'HSR Layout'],
       city: 'Bangalore',
       state: 'Karnataka',
       country: 'India'
@@ -43,7 +43,7 @@ export const config = {
   contact: {
     email: 'hello@localhub.com',
     phone: '+91-9876543210',
-    address: 'Your City, Your State, Your Country'
+    address: 'Mumbai, Maharashtra, India'
   },
   
   // Social media

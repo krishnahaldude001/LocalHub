@@ -16,7 +16,7 @@ import {
   Link as LinkIcon,
   Image as ImageIcon
 } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 interface RichTextEditorProps {
   content: string
@@ -27,6 +27,12 @@ interface RichTextEditorProps {
 export default function RichTextEditor({ content, onChange, placeholder = "Start writing..." }: RichTextEditorProps) {
   const [isLinkModalOpen, setIsLinkModalOpen] = useState(false)
   const [linkUrl, setLinkUrl] = useState('')
+  const [isMounted, setIsMounted] = useState(false)
+
+  // Ensure component is mounted on client side
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
 
   const editor = useEditor({
     extensions: [
@@ -44,6 +50,7 @@ export default function RichTextEditor({ content, onChange, placeholder = "Start
       }),
     ],
     content,
+    immediatelyRender: false,
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML())
     },
@@ -69,7 +76,8 @@ export default function RichTextEditor({ content, onChange, placeholder = "Start
     }
   }
 
-  if (!editor) {
+  // Show loading state until component is mounted
+  if (!isMounted || !editor) {
     return (
       <div className="border rounded-lg">
         <div className="flex flex-wrap items-center gap-1 p-2 border-b bg-muted/50">

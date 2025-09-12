@@ -2,7 +2,7 @@ import { Metadata } from 'next'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { prisma } from '@/lib/db'
+import { getUsers } from '@/lib/simple-db'
 import { getRoleLabel, ROLE_DESCRIPTIONS, type UserRole } from '@/lib/roles'
 import { formatDate } from '@/lib/utils'
 import Link from 'next/link'
@@ -33,9 +33,7 @@ const roleColors = {
 } as const
 
 export default async function UserManagementPage() {
-  const users = await prisma.user.findMany({
-    orderBy: { createdAt: 'desc' },
-  })
+  const users = await getUsers()
 
   const stats = {
     total: users.length,

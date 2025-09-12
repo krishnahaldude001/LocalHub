@@ -2,7 +2,7 @@ import { Metadata } from 'next'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { prisma } from '@/lib/db'
+import { getDeals, getUsers, getClicks, getPostCount } from '@/lib/simple-db'
 import { config } from '@/lib/config'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
@@ -37,17 +37,12 @@ export default async function AdminDashboard() {
   const session = await getServerSession(authOptions)
   const userRole = (session?.user as any)?.role as UserRole || 'user'
   
-  // Fetch all data for dashboard
+  // Fetch all data for dashboard using simple connection
   const [deals, newsCount, clickStats, users] = await Promise.all([
-    prisma.deal.findMany({
-      include: { 
-        platform: true,
-        _count: { select: { clicks: true } } 
-      }
-    }),
-    prisma.post.count(),
-    prisma.click.findMany(),
-    prisma.user.findMany()
+    getDeals(100), // Get more deals for dashboard
+    getPostCount(),
+    getClicks(),
+    getUsers()
   ])
 
   const totalClicks = clickStats.length
@@ -389,9 +384,9 @@ export default async function AdminDashboard() {
                   </div>
                   <div>
                     <p className="font-medium">{deal.title}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {deal._count.clicks} clicks • {deal.area}
-                    </p>
+                     <p className="text-sm text-muted-foreground">
+                       {deal._count?.clicks || 0} clicks • {deal.area}
+                     </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">

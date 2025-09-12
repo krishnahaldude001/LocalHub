@@ -2,7 +2,7 @@ import { Metadata } from 'next'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { redirect } from 'next/navigation'
-import { prisma } from '@/lib/db'
+import { getPlatforms } from '@/lib/simple-db'
 import PlatformManagement from './platform-management'
 
 // Force dynamic rendering to avoid build-time database calls
@@ -26,14 +26,7 @@ export default async function PlatformManagementPage() {
   }
 
   // Fetch all platforms
-  const platforms = await prisma.platform.findMany({
-    orderBy: { name: 'asc' },
-    include: {
-      _count: {
-        select: { deals: true }
-      }
-    }
-  })
+  const platforms = await getPlatforms()
 
   return (
     <div className="container mx-auto px-4 py-8">

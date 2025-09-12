@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { sampleDeals } from '@/lib/sample-data'
 import { config, getAreasForLocation } from '@/lib/config'
 import { formatDate, formatPrice, getDiscountPercentage, getPlatformColor, getPlatformName } from '@/lib/utils'
-import { prisma, parseGallery } from '@/lib/db'
+import { getDeals, getPosts } from '@/lib/simple-db'
 import Link from 'next/link'
 import Image from 'next/image'
 import { ArrowRight, Star, MapPin, Calendar } from 'lucide-react'
@@ -15,31 +15,21 @@ import { ArrowRight, Star, MapPin, Calendar } from 'lucide-react'
 export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
-  title: `${config.appName} - Local News & Deals`,
-  description: `${config.appDescription} in ${config.defaultLocation.areas.join(', ')} areas.`,
+  title: `${config.appName} - Mumbai Local News & Deals`,
+  description: `${config.appDescription} in Mumbai - covering ${config.defaultLocation.areas.slice(0, 5).join(', ')} and more areas.`,
 }
 
 export default async function HomePage() {
-  // Fetch deals and news from database
+  // Fetch deals and news from database using simple connection
   const [dbDeals, news] = await Promise.all([
-    prisma.deal.findMany({
-      include: {
-        platform: true
-      },
-      orderBy: { publishedAt: 'desc' },
-      take: 6
-    }),
-    prisma.post.findMany({
-      where: { published: true },
-      orderBy: { publishedAt: 'desc' },
-      take: 6
-    })
+    getDeals(6),
+    getPosts(6)
   ])
 
   // Transform database deals to match the expected format
   const deals = dbDeals.map(deal => ({
     ...deal,
-    gallery: parseGallery(deal.gallery)
+    gallery: deal.gallery ? (typeof deal.gallery === 'string' && deal.gallery.startsWith('[') ? JSON.parse(deal.gallery) : [deal.gallery]) : []
   }))
 
   // Get areas for current location
@@ -58,7 +48,7 @@ export default async function HomePage() {
             Welcome to <span className="text-gradient-primary">{config.appName}</span>
           </h1>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-8 leading-relaxed">
-            {config.appDescription} in {areas.join(', ')} areas.
+            {config.appDescription} in Mumbai - covering {areas.slice(0, 5).join(', ')} and more areas.
           </p>
           
           {/* Enhanced Area Badges */}
@@ -87,7 +77,7 @@ export default async function HomePage() {
             </div>
             <div className="bg-background/50 backdrop-blur-sm rounded-lg p-4 border border-border/50">
               <div className="text-2xl font-bold text-primary">{areas.length}</div>
-              <div className="text-sm text-muted-foreground">Coverage Areas</div>
+              <div className="text-sm text-muted-foreground">Mumbai Areas</div>
             </div>
           </div>
         </div>

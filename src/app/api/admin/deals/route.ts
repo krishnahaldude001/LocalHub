@@ -41,6 +41,7 @@ export async function POST(request: NextRequest) {
         rating: body.rating,
         cod: body.cod,
         image: body.image,
+        youtubeUrl: body.youtubeUrl,
         gallery: body.gallery,
         area: body.area,
         publishedAt: new Date()

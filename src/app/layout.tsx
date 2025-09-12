@@ -11,9 +11,9 @@ import { Toaster } from 'sonner'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: `${config.appName} - Local News & Deals`,
-  description: `${config.appDescription} in ${config.defaultLocation.areas.join(', ')} areas.`,
-  keywords: `${config.defaultLocation.areas.join(', ')}, local news, deals, community, ${config.defaultLocation.city}`,
+  title: `${config.appName} - Mumbai Local News & Deals`,
+  description: `${config.appDescription} in Mumbai - covering ${config.defaultLocation.areas.slice(0, 5).join(', ')} and more areas.`,
+  keywords: `Mumbai, ${config.defaultLocation.areas.join(', ')}, local news, deals, community, Maharashtra`,
   authors: [{ name: `${config.appName} Team` }],
   creator: config.appName,
   metadataBase: new URL(process.env.NEXTAUTH_URL || 'http://localhost:3001'),
@@ -21,14 +21,14 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_IN',
     url: config.appUrl,
-    title: `${config.appName} - Local News & Deals`,
-    description: `${config.appDescription} in ${config.defaultLocation.areas.join(', ')} areas.`,
+    title: `${config.appName} - Mumbai Local News & Deals`,
+    description: `${config.appDescription} in Mumbai - covering ${config.defaultLocation.areas.slice(0, 5).join(', ')} and more areas.`,
     siteName: config.appName,
   },
   twitter: {
     card: 'summary_large_image',
-    title: `${config.appName} - Local News & Deals`,
-    description: `${config.appDescription} in ${config.defaultLocation.areas.join(', ')} areas.`,
+    title: `${config.appName} - Mumbai Local News & Deals`,
+    description: `${config.appDescription} in Mumbai - covering ${config.defaultLocation.areas.slice(0, 5).join(', ')} and more areas.`,
   },
   robots: {
     index: true,
