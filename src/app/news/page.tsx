@@ -7,7 +7,8 @@ import { config, getAreasForLocation } from '@/lib/config'
 import { formatDate } from '@/lib/utils'
 import Link from 'next/link'
 import Image from 'next/image'
-import { ArrowRight, Calendar, MapPin } from 'lucide-react'
+import { ArrowRight, Calendar, MapPin, Filter } from 'lucide-react'
+import ClickableAreaBadges from '@/components/clickable-area-badges'
 
 // Force dynamic rendering to avoid build-time database calls
 export const dynamic = 'force-dynamic'
@@ -17,36 +18,87 @@ export const metadata: Metadata = {
   description: `Stay updated with the latest news and community updates from ${config.defaultLocation.areas.join(', ')} areas.`,
 }
 
-export default async function NewsPage() {
+interface NewsPageProps {
+  searchParams: {
+    area?: string
+  }
+}
+
+export default async function NewsPage({ searchParams }: NewsPageProps) {
   const areas = getAreasForLocation()
-  const news = await prisma.post.findMany({
-    where: { published: true },
-    orderBy: { publishedAt: 'desc' },
-  })
+  const selectedArea = searchParams.area
+  
+  // Add error handling for database connection
+  let news = []
+  try {
+    if (!prisma) {
+      throw new Error('Prisma client is not initialized')
+    }
+    
+    // Build where clause based on area filter
+    const whereClause: any = { published: true }
+    if (selectedArea) {
+      whereClause.area = selectedArea
+    }
+    
+    news = await prisma.post.findMany({
+      where: whereClause,
+      orderBy: { publishedAt: 'desc' },
+    })
+  } catch (error) {
+    console.error('Error fetching news:', error)
+    // Return empty array if there's an error
+    news = []
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Header */}
       <div className="text-center mb-12">
         <h1 className="text-4xl md:text-5xl font-bold mb-4">
-          Latest <span className="text-primary">News</span>
+          {selectedArea ? (
+            <>
+              <span className="text-primary">{selectedArea}</span> News
+            </>
+          ) : (
+            <>
+              Latest <span className="text-primary">News</span>
+            </>
+          )}
         </h1>
         <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-          Stay updated with the latest news and community updates from {areas.join(', ')} areas.
+          {selectedArea 
+            ? `Stay updated with the latest news and community updates from ${selectedArea}.`
+            : `Stay updated with the latest news and community updates from ${areas.join(', ')} areas.`
+          }
         </p>
-        <div className="flex flex-wrap justify-center gap-2 mt-6">
-          {areas.map((area) => (
-            <Badge key={area} className="text-sm px-3 py-1 bg-gradient-primary text-white border-0">
-              <MapPin className="h-3 w-3 mr-1" />
-              {area}
-            </Badge>
-          ))}
+        
+        {/* Area Filter */}
+        <div className="mt-8">
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <Filter className="h-4 w-4 text-muted-foreground" />
+            <span className="text-sm text-muted-foreground">Filter by area:</span>
+          </div>
+          <ClickableAreaBadges areas={areas} selectedArea={selectedArea} />
         </div>
+        
+        {/* Clear Filter Button */}
+        {selectedArea && (
+          <div className="mt-4">
+            <Link href="/news">
+              <Button variant="outline" size="sm">
+                <MapPin className="h-4 w-4 mr-2" />
+                Show All Areas
+              </Button>
+            </Link>
+          </div>
+        )}
       </div>
 
       {/* News Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {news.map((post) => (
+      {news.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {news.map((post) => (
           <Card key={post.id} className="overflow-hidden hover:shadow-lg transition-shadow">
             <div className="relative h-48">
               <Image
@@ -88,7 +140,30 @@ export default async function NewsPage() {
             </CardContent>
           </Card>
         ))}
-      </div>
+        </div>
+      ) : (
+        <div className="text-center py-12">
+          <div className="bg-muted/50 rounded-lg p-8">
+            <h3 className="text-xl font-semibold mb-2">
+              {selectedArea ? `No News Available for ${selectedArea}` : 'No News Available'}
+            </h3>
+            <p className="text-muted-foreground mb-4">
+              {selectedArea 
+                ? `We don't have any news articles for ${selectedArea} yet. Try selecting a different area or check back soon!`
+                : "We're working on bringing you the latest news. Please check back soon!"
+              }
+            </p>
+            {selectedArea && (
+              <Link href="/news">
+                <Button variant="outline">
+                  <MapPin className="h-4 w-4 mr-2" />
+                  View All Areas
+                </Button>
+              </Link>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* CTA Section */}
       <div className="mt-16 text-center">

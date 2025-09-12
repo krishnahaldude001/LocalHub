@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import RichTextEditor from '@/components/rich-text-editor'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Switch } from '@/components/ui/switch'
@@ -15,10 +16,12 @@ import { Save, Eye, Calendar, MapPin, Tag, User } from 'lucide-react'
 interface EditNewsFormProps {
   post: {
     id: string
+    slug: string
     title: string
     content: string
     excerpt?: string | null
     image?: string | null
+    youtubeUrl?: string | null
     category: string
     area: string
     author: string
@@ -37,6 +40,7 @@ export default function EditNewsForm({ post }: EditNewsFormProps) {
     content: post.content,
     excerpt: post.excerpt || '',
     image: post.image || '',
+    youtubeUrl: post.youtubeUrl || '',
     category: post.category,
     area: post.area,
     author: post.author,
@@ -151,14 +155,25 @@ export default function EditNewsForm({ post }: EditNewsFormProps) {
       </div>
 
       <div className="space-y-2">
+        <Label htmlFor="youtubeUrl">YouTube Video URL (Optional)</Label>
+        <Input
+          id="youtubeUrl"
+          value={formData.youtubeUrl}
+          onChange={(e) => handleInputChange('youtubeUrl', e.target.value)}
+          placeholder="https://www.youtube.com/watch?v=..."
+          type="url"
+        />
+        <p className="text-sm text-muted-foreground">
+          Add a YouTube video URL to embed a video in your article
+        </p>
+      </div>
+
+      <div className="space-y-2">
         <Label htmlFor="content">Article Content</Label>
-        <Textarea
-          id="content"
-          value={formData.content}
-          onChange={(e) => handleInputChange('content', e.target.value)}
+        <RichTextEditor
+          content={formData.content}
+          onChange={(content) => handleInputChange('content', content)}
           placeholder="Write your article content here..."
-          rows={12}
-          required
         />
       </div>
 
@@ -227,7 +242,7 @@ export default function EditNewsForm({ post }: EditNewsFormProps) {
           <Button
             type="button"
             variant="outline"
-            onClick={() => window.open(`/news/${post.id}`, '_blank')}
+            onClick={() => window.open(`/news/${post.slug}`, '_blank')}
           >
             <Eye className="h-4 w-4 mr-2" />
             Preview

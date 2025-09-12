@@ -10,6 +10,8 @@ import { getDeals, getPosts } from '@/lib/simple-db'
 import Link from 'next/link'
 import Image from 'next/image'
 import { ArrowRight, Star, MapPin, Calendar } from 'lucide-react'
+import ClickableAreaBadges from '@/components/clickable-area-badges'
+import SocialMediaButtons from '@/components/social-media-buttons'
 
 // Force dynamic rendering to avoid build-time database calls
 export const dynamic = 'force-dynamic'
@@ -52,18 +54,7 @@ export default async function HomePage() {
           </p>
           
           {/* Enhanced Area Badges */}
-          <div className="flex flex-wrap justify-center gap-3 mb-8">
-            {areas.map((area, index) => (
-              <Badge 
-                key={area} 
-                className="text-sm px-4 py-2 hover:scale-105 transition-transform duration-200 cursor-default shadow-sm bg-gradient-primary text-white border-0"
-                style={{ animationDelay: `${index * 100}ms` }}
-              >
-                <MapPin className="h-3 w-3 mr-2" />
-                {area}
-              </Badge>
-            ))}
-          </div>
+          <ClickableAreaBadges areas={areas} />
           
           {/* Quick Stats */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-2xl mx-auto">
@@ -234,7 +225,7 @@ export default async function HomePage() {
           <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
             Get the latest updates about your area, exclusive deals, and community events delivered to your inbox.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-6">
             <Link href="/news">
               <Button size="lg">
                 Browse All News
@@ -247,6 +238,12 @@ export default async function HomePage() {
                 <ArrowRight className="h-4 w-4 ml-1" />
               </Button>
             </Link>
+          </div>
+          
+          {/* Social Media Section */}
+          <div className="border-t border-border/50 pt-6">
+            <p className="text-sm text-muted-foreground mb-4">Follow us for instant updates</p>
+            <SocialMediaButtons variant="outline" size="default" />
           </div>
         </div>
       </div>

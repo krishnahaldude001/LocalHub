@@ -30,6 +30,7 @@ interface EditDealFormProps {
     cod: boolean
     image: string | null
     gallery: string | null
+    youtubeUrl: string | null
     area: string
   }
 }
@@ -52,6 +53,7 @@ export default function EditDealForm({ deal }: EditDealFormProps) {
     rating: deal.rating?.toString() || '0',
     cod: deal.cod,
     image: deal.image || '',
+    youtubeUrl: deal.youtubeUrl || '',
     area: deal.area
   })
 
@@ -272,6 +274,22 @@ export default function EditDealForm({ deal }: EditDealFormProps) {
           placeholder="https://images.unsplash.com/photo-..."
           required
         />
+      </div>
+
+      {/* YouTube Video */}
+      <div className="space-y-2">
+        <Label htmlFor="youtubeUrl">YouTube Video URL (Optional)</Label>
+        <Input
+          id="youtubeUrl"
+          name="youtubeUrl"
+          type="url"
+          value={formData.youtubeUrl}
+          onChange={handleInputChange}
+          placeholder="https://www.youtube.com/watch?v=..."
+        />
+        <p className="text-sm text-muted-foreground">
+          Add a YouTube video URL to embed a product review or demonstration video
+        </p>
       </div>
 
       {/* Gallery Images */}

@@ -13,6 +13,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { ArrowLeft, Calendar, MapPin, User, Tag } from 'lucide-react'
 import ViewTracker from '@/components/view-tracker'
+import SocialSharing from '@/components/social-sharing'
 
 // Force dynamic rendering to avoid build-time database calls
 export const dynamic = 'force-dynamic'
@@ -135,21 +136,16 @@ export default async function NewsPage({ params }: NewsPageProps) {
           </p>
           
           {/* YouTube Video */}
-          {(() => {
-            const youtubeUrl = extractYouTubeFromContent(post.content)
-            if (youtubeUrl) {
-              return (
-                <div className="mb-8">
-                  <YouTubeEmbed 
-                    url={youtubeUrl} 
-                    title={post.title}
-                    className="w-full"
-                  />
-                </div>
-              )
-            }
-            return null
-          })()}
+          {post.youtubeUrl && (
+            <div className="mb-8">
+              <h3 className="text-lg font-semibold mb-3">Related Video</h3>
+              <YouTubeEmbed 
+                url={post.youtubeUrl} 
+                title={post.title}
+                className="w-full"
+              />
+            </div>
+          )}
           
           <div className="text-base leading-relaxed">
             <RichTextRenderer content={post.content} />
@@ -158,11 +154,23 @@ export default async function NewsPage({ params }: NewsPageProps) {
 
         {/* Article Footer */}
         <div className="border-t pt-8 mb-12">
-          <div className="flex flex-wrap gap-2 items-center">
-            <span className="text-sm text-muted-foreground">Tags:</span>
-            <Badge variant="outline">{post.area}</Badge>
-            <Badge variant="outline">{post.category}</Badge>
-            <Badge variant="outline">Local News</Badge>
+          <div className="space-y-6">
+            {/* Social Sharing */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <SocialSharing 
+                title={post.title}
+                url={`${config.appUrl}/news/${post.slug}`}
+                description={post.excerpt || ''}
+              />
+            </div>
+            
+            {/* Tags */}
+            <div className="flex flex-wrap gap-2 items-center">
+              <span className="text-sm text-muted-foreground">Tags:</span>
+              <Badge variant="outline">{post.area}</Badge>
+              <Badge variant="outline">{post.category}</Badge>
+              <Badge variant="outline">Local News</Badge>
+            </div>
           </div>
         </div>
       </div>

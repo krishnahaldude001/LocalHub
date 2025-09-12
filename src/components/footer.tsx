@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { Separator } from '@/components/ui/separator'
 import { config } from '@/lib/config'
+import SocialMediaButtons from '@/components/social-media-buttons'
 
 export default function Footer() {
   const currentYear = new Date().getFullYear()
@@ -79,18 +80,15 @@ export default function Footer() {
           {/* Social & Contact */}
           <div className="space-y-4">
             <h3 className="font-semibold">Connect With Us</h3>
-            <div className="space-y-2 text-sm">
-              <p className="text-muted-foreground">
-                Stay updated with our WhatsApp channel for instant notifications.
+            <div className="space-y-3">
+              <p className="text-sm text-muted-foreground">
+                Follow us on social media for the latest updates and community news.
               </p>
-              <a
-                href="https://wa.me/your-number"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center text-green-600 hover:text-green-700 transition-colors"
-              >
-                📱 Join WhatsApp Channel
-              </a>
+              <SocialMediaButtons variant="outline" size="sm" />
+              <div className="text-xs text-muted-foreground">
+                <p>📧 {config.contact.email}</p>
+                <p>📱 {config.contact.phone}</p>
+              </div>
             </div>
           </div>
         </div>

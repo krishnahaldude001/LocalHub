@@ -5,10 +5,12 @@ import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import Link from 'next/link'
 import { Mail, Phone, MapPin, MessageSquare, Send, Clock, Users } from 'lucide-react'
+import { config } from '@/lib/config'
+import SocialMediaButtons from '@/components/social-media-buttons'
 
 export const metadata: Metadata = {
-  title: 'Contact Us - GovandiHub',
-  description: 'Get in touch with the GovandiHub team. We\'re here to help with your questions, feedback, and suggestions.',
+  title: `Contact Us - ${config.appName}`,
+  description: `Get in touch with the ${config.appName} team. We're here to help with your questions, feedback, and suggestions.`,
 }
 
 export default function ContactPage() {
@@ -16,21 +18,21 @@ export default function ContactPage() {
     {
       icon: <Mail className="h-6 w-6 text-primary" />,
       title: 'Email',
-      value: 'hello@govandihub.com',
+      value: config.contact.email,
       description: 'Send us an email anytime',
-      link: 'mailto:hello@govandihub.com'
+      link: `mailto:${config.contact.email}`
     },
     {
       icon: <Phone className="h-6 w-6 text-primary" />,
       title: 'Phone',
-      value: '+91 98765 43210',
+      value: config.contact.phone,
       description: 'Call us during business hours',
-      link: 'tel:+919876543210'
+      link: `tel:${config.contact.phone.replace(/\s/g, '')}`
     },
     {
       icon: <MapPin className="h-6 w-6 text-primary" />,
       title: 'Office',
-      value: 'Mumbai, Maharashtra',
+      value: config.contact.address,
       description: 'Based in Mumbai, serving local communities',
       link: '#'
     }
@@ -53,10 +55,10 @@ export default function ContactPage() {
     },
     {
       question: 'How do you select which areas to cover?',
-      answer: 'We focus on Govandi, Shivaji Nagar, and Baiganwadi as these are our core communities. We\'re always looking to expand coverage based on community needs.'
+      answer: `We focus on ${config.defaultLocation.areas.slice(0, 3).join(', ')} as these are our core communities. We're always looking to expand coverage based on community needs.`
     },
     {
-      question: 'Can I advertise my local business on GovandiHub?',
+      question: `Can I advertise my local business on ${config.appName}?`,
       answer: 'Yes! We offer various advertising options for local businesses. Please contact us for more information about our advertising packages.'
     }
   ]
@@ -234,21 +236,14 @@ export default function ContactPage() {
           </CardHeader>
           <CardContent className="text-center">
             <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
-              Follow us on social media and join our WhatsApp channel to stay updated with the latest 
+              Follow us on social media to stay updated with the latest 
               news, deals, and community events in your area.
             </p>
-            <div className="flex flex-wrap justify-center gap-4">
-              <a
-                href="https://wa.me/your-number"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors"
-              >
-                📱 Join WhatsApp Channel
-              </a>
-              <Button variant="outline">
-                Follow on Social Media
-              </Button>
+            <div className="flex flex-col items-center gap-4">
+              <SocialMediaButtons variant="outline" size="default" showLabels={true} />
+              <p className="text-sm text-muted-foreground">
+                Click any button above to connect with us on your preferred platform
+              </p>
             </div>
           </CardContent>
         </Card>
@@ -259,7 +254,7 @@ export default function ContactPage() {
         <div className="bg-gradient-to-r from-primary/10 to-secondary/10 rounded-2xl p-8">
           <h2 className="text-2xl font-bold mb-4">Ready to Get Started?</h2>
           <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
-            Explore our platform and discover what GovandiHub has to offer for your community.
+            Explore our platform and discover what {config.appName} has to offer for your community.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/">

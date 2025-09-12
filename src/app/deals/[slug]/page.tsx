@@ -12,6 +12,7 @@ import Image from 'next/image'
 import { ArrowLeft, Star, MapPin, Calendar, ExternalLink, ShoppingCart, CreditCard } from 'lucide-react'
 import DealClient from './deal-client'
 import ViewTracker from '@/components/view-tracker'
+import SocialSharing from '@/components/social-sharing'
 
 // Force dynamic rendering to avoid build-time database calls
 export const dynamic = 'force-dynamic'
@@ -207,8 +208,17 @@ export default async function DealsPage({ params }: DealsPageProps) {
           )}
 
           {/* CTA Buttons */}
-          <div className="space-y-3">
+          <div className="space-y-6">
             <DealClient deal={dealData} />
+            
+            {/* Social Sharing */}
+            <div className="border-t pt-6">
+              <SocialSharing 
+                title={dealData.title}
+                url={`${config.appUrl}/deals/${dealData.slug}`}
+                description={`Check out this amazing deal: ${dealData.title} - ${dealData.salePrice ? formatPrice(dealData.salePrice) : formatPrice(dealData.price)}`}
+              />
+            </div>
             
             <div className="text-center">
               <p className="text-xs text-muted-foreground">

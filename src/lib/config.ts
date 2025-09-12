@@ -8,7 +8,7 @@ export const config = {
   // Default location (can be overridden)
   defaultLocation: {
     name: 'Mumbai',
-    areas: ['Govandi', 'Shivaji Nagar', 'Baiganwadi', 'Kurla', 'Ghatkopar', 'Powai', 'Andheri', 'Bandra', 'Dadar', 'Thane'],
+    areas: ['Govandi', 'Mankhurd', 'Kurla', 'Ghatkopar', 'Powai', 'Andheri', 'Bandra', 'Dadar', 'Thane'],
     city: 'Mumbai',
     state: 'Maharashtra',
     country: 'India'
@@ -18,7 +18,7 @@ export const config = {
   supportedLocations: [
     {
       name: 'Mumbai',
-      areas: ['Govandi', 'Shivaji Nagar', 'Baiganwadi', 'Kurla', 'Ghatkopar', 'Powai', 'Andheri', 'Bandra', 'Dadar', 'Thane'],
+      areas: ['Govandi', 'Mankhurd', 'Kurla', 'Ghatkopar', 'Powai', 'Andheri', 'Bandra', 'Dadar', 'Thane'],
       city: 'Mumbai',
       state: 'Maharashtra',
       country: 'India'

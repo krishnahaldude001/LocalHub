@@ -7,7 +7,7 @@ export async function PUT(
 ) {
   try {
     const body = await request.json()
-    const { title, content, excerpt, image, category, area, author, published } = body
+    const { title, content, excerpt, image, youtubeUrl, category, area, author, published } = body
 
     // Validate required fields
     if (!title || !content || !category || !area || !author) {
@@ -25,13 +25,14 @@ export async function PUT(
         content = $2,
         excerpt = $3,
         image = $4,
-        category = $5,
-        area = $6,
-        author = $7,
-        published = $8,
+        "youtubeUrl" = $5,
+        category = $6,
+        area = $7,
+        author = $8,
+        published = $9,
         "updatedAt" = NOW()
-      WHERE id = $9
-    `, [title, content, excerpt, image, category, area, author, published, params.id])
+      WHERE id = $10
+    `, [title, content, excerpt, image, youtubeUrl, category, area, author, published, params.id])
 
     return NextResponse.json({ success: true })
 

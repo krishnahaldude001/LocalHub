@@ -35,6 +35,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
         rating: body.rating,
         cod: body.cod,
         image: body.image,
+        youtubeUrl: body.youtubeUrl,
         gallery: body.gallery,
         area: body.area,
         updatedAt: new Date()

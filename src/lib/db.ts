@@ -4,15 +4,28 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined
 }
 
-export const prisma = globalForPrisma.prisma ?? new PrismaClient({
-  log: ['error'],
-  errorFormat: 'pretty',
-  datasources: {
-    db: {
-      url: process.env.DATABASE_URL,
-    },
-  },
-})
+// Create Prisma client with better error handling and connection pooling
+function createPrismaClient() {
+  try {
+    // Use direct connection URL to avoid prepared statement conflicts
+    const databaseUrl = process.env.DATABASE_URL?.replace(':6543/', ':5432/') || process.env.DATABASE_URL
+    
+    return new PrismaClient({
+      log: ['error'],
+      errorFormat: 'pretty',
+      datasources: {
+        db: {
+          url: databaseUrl,
+        },
+      },
+    })
+  } catch (error) {
+    console.error('Failed to create Prisma client:', error)
+    throw error
+  }
+}
+
+export const prisma = globalForPrisma.prisma ?? createPrismaClient()
 
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
 
