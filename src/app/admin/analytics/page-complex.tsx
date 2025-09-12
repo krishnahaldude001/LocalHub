@@ -90,7 +90,7 @@ export default async function AnalyticsPage() {
     return acc
   }, {} as Record<string, { posts: number }>)
 
-  const categoryChartData = Object.entries(categoryData).map(([category, data]: [string, { posts: number }]) => ({
+  const categoryChartData = (Object.entries(categoryData) as [string, { posts: number }][]).map(([category, data]) => ({
     category,
     posts: data.posts
   }))
