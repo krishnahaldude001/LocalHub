@@ -57,7 +57,7 @@ export default function SocialSharing({ title, url, description, className = '' 
       <span className="text-sm font-medium text-muted-foreground mr-2">Share:</span>
       
       {/* Native Share Button (for mobile) */}
-      {navigator.share && (
+      {typeof navigator !== 'undefined' && 'share' in navigator && (
         <Button
           variant="outline"
           size="sm"

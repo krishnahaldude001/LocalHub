@@ -29,7 +29,7 @@ export default async function NewsPage({ searchParams }: NewsPageProps) {
   const selectedArea = searchParams.area
   
   // Add error handling for database connection
-  let news = []
+  let news: any[] = []
   try {
     if (!prisma) {
       throw new Error('Prisma client is not initialized')

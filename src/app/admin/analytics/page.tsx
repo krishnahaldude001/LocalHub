@@ -55,7 +55,7 @@ export default async function AnalyticsPage() {
     return acc
   }, {} as Record<string, { platform: string; clicks: number; deals: number }>)
 
-  const topPlatforms = Object.values(platformData)
+  const topPlatforms = (Object.values(platformData) as { platform: string; clicks: number; deals: number }[])
     .sort((a, b) => b.clicks - a.clicks)
     .slice(0, 5)
 
