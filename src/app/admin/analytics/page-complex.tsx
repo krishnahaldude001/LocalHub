@@ -56,7 +56,7 @@ export default async function AnalyticsPage() {
     return acc
   }, {} as Record<string, { platform: string; clicks: number; deals: number }>)
 
-  const platformChartData = Object.values(platformData).map(item => ({
+  const platformChartData = Object.values(platformData).map((item: { platform: string; clicks: number; deals: number }) => ({
     platform: item.platform,
     clicks: item.clicks,
     deals: item.deals
