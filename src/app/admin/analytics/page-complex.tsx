@@ -56,7 +56,7 @@ export default async function AnalyticsPage() {
     return acc
   }, {} as Record<string, { platform: string; clicks: number; deals: number }>)
 
-  const platformChartData = Object.values(platformData).map((item: { platform: string; clicks: number; deals: number }) => ({
+  const platformChartData = (Object.values(platformData) as { platform: string; clicks: number; deals: number }[]).map(item => ({
     platform: item.platform,
     clicks: item.clicks,
     deals: item.deals
@@ -74,7 +74,7 @@ export default async function AnalyticsPage() {
     return acc
   }, {} as Record<string, { area: string; clicks: number; deals: number }>)
 
-  const areaChartData = Object.values(areaData).map(item => ({
+  const areaChartData = (Object.values(areaData) as { area: string; clicks: number; deals: number }[]).map(item => ({
     area: item.area,
     clicks: item.clicks,
     deals: item.deals
