@@ -84,16 +84,15 @@ export default async function AnalyticsPage() {
   const categoryData = posts.reduce((acc, post) => {
     const category = post.category
     if (!acc[category]) {
-      acc[category] = { posts: 0 }
+      acc[category] = { count: 0 }
     }
-    acc[category].posts += 1
+    acc[category].count += 1
     return acc
-  }, {} as Record<string, { posts: number }>)
+  }, {} as Record<string, { count: number }>)
 
-  const categoryChartData = (Object.entries(categoryData) as [string, { posts: number }][]).map(([category, data]) => ({
-    category,
-    posts: data.posts
-  }))
+  const categoryChartData = (
+    Object.entries(categoryData) as [string, { count: number }][]
+  ).map(([category, data]) => ({ category, count: data.count }))
 
   // Recent activity (last 7 days)
   const sevenDaysAgo = new Date()
