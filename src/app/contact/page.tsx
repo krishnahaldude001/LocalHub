@@ -1,53 +1,137 @@
-import { Metadata } from 'next'
+'use client'
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import Link from 'next/link'
-import { Mail, Phone, MapPin, MessageSquare, Send, Clock, Users } from 'lucide-react'
+import { Mail, Phone, MapPin, MessageSquare, Send, Clock, Users, MessageCircle } from 'lucide-react'
 import { config } from '@/lib/config'
 import SocialMediaButtons from '@/components/social-media-buttons'
-
-export const metadata: Metadata = {
-  title: `Contact Us - ${config.appName}`,
-  description: `Get in touch with the ${config.appName} team. We're here to help with your questions, feedback, and suggestions.`,
-}
+import { useState, useEffect } from 'react'
+import { toast } from 'sonner'
 
 export default function ContactPage() {
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    subject: '',
+    message: ''
+  })
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [contactInfo, setContactInfo] = useState({
+    email: 'admin@localhub.space',
+    phone: '+91-9876543210',
+    whatsapp: '+91-9876543210',
+    address: 'Mumbai, Maharashtra, India',
+    businessHours: '9:00 AM - 6:00 PM (Mon-Fri), 10:00 AM - 4:00 PM (Sat)'
+  })
+  const [isLoadingContact, setIsLoadingContact] = useState(true)
+
+  useEffect(() => {
+    fetchContactInfo()
+  }, [])
+
+  const fetchContactInfo = async () => {
+    try {
+      const response = await fetch('/api/contact')
+      if (response.ok) {
+        const data = await response.json()
+        setContactInfo(data)
+      }
+    } catch (error) {
+      console.error('Error fetching contact info:', error)
+      // Keep default values if fetch fails
+    } finally {
+      setIsLoadingContact(false)
+    }
+  }
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    })
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsSubmitting(true)
+
+    try {
+      // For now, we'll use a simple mailto link
+      // In production, you'd want to use a service like EmailJS or a backend API
+      const subject = encodeURIComponent(formData.subject)
+      const body = encodeURIComponent(
+        `Name: ${formData.firstName} ${formData.lastName}\n` +
+        `Email: ${formData.email}\n` +
+        `Phone: ${formData.phone}\n\n` +
+        `Message:\n${formData.message}`
+      )
+      
+      window.location.href = `mailto:${config.contact.email}?subject=${subject}&body=${body}`
+      
+      toast.success('Email client opened! Please send the email to complete your inquiry.')
+    } catch (error) {
+      toast.error('Failed to open email client. Please try again.')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handleWhatsAppClick = () => {
+    const message = encodeURIComponent(
+      `Hi! I want to contact ${config.appName}.\n\n` +
+      `Name: ${formData.firstName} ${formData.lastName}\n` +
+      `Email: ${formData.email}\n` +
+      `Phone: ${formData.phone}\n\n` +
+      `Message: ${formData.message || 'I have a general inquiry.'}`
+    )
+    const whatsappUrl = `https://wa.me/${contactInfo.whatsapp.replace(/[^0-9]/g, '')}?text=${message}`
+    window.open(whatsappUrl, '_blank')
+  }
+
   const contactMethods = [
     {
       icon: <Mail className="h-6 w-6 text-primary" />,
       title: 'Email',
-      value: config.contact.email,
+      value: contactInfo.email,
       description: 'Send us an email anytime',
-      link: `mailto:${config.contact.email}`
+      link: `mailto:${contactInfo.email}`
     },
     {
       icon: <Phone className="h-6 w-6 text-primary" />,
       title: 'Phone',
-      value: config.contact.phone,
+      value: contactInfo.phone,
       description: 'Call us during business hours',
-      link: `tel:${config.contact.phone.replace(/\s/g, '')}`
+      link: `tel:${contactInfo.phone.replace(/\s/g, '')}`
+    },
+    {
+      icon: <MessageCircle className="h-6 w-6 text-green-500" />,
+      title: 'WhatsApp',
+      value: contactInfo.whatsapp,
+      description: 'Chat with us instantly',
+      link: `https://wa.me/${contactInfo.whatsapp.replace(/[^0-9]/g, '')}?text=Hi! I want to know more about ${config.appName} services.`,
+      isWhatsApp: true
     },
     {
       icon: <MapPin className="h-6 w-6 text-primary" />,
       title: 'Office',
-      value: config.contact.address,
+      value: contactInfo.address,
       description: 'Based in Mumbai, serving local communities',
       link: '#'
     }
   ]
 
   const businessHours = [
-    { day: 'Monday - Friday', hours: '9:00 AM - 6:00 PM' },
-    { day: 'Saturday', hours: '10:00 AM - 4:00 PM' },
-    { day: 'Sunday', hours: 'Closed' }
+    { day: 'Business Hours', hours: contactInfo.businessHours }
   ]
 
   const faqs = [
     {
       question: 'How can I submit local news or events?',
-      answer: 'You can email us at hello@govandihub.com with details about local news, events, or community updates you\'d like us to cover.'
+      answer: `You can email us at ${contactInfo.email} with details about local news, events, or community updates you'd like us to cover.`
     },
     {
       question: 'Are the deals on your platform verified?',
@@ -90,19 +174,33 @@ export default function ContactPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <form className="space-y-4">
+              <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label htmlFor="firstName" className="block text-sm font-medium mb-2">
                       First Name
                     </label>
-                    <Input id="firstName" placeholder="Your first name" required />
+                    <Input 
+                      id="firstName" 
+                      name="firstName"
+                      value={formData.firstName}
+                      onChange={handleInputChange}
+                      placeholder="Your first name" 
+                      required 
+                    />
                   </div>
                   <div>
                     <label htmlFor="lastName" className="block text-sm font-medium mb-2">
                       Last Name
                     </label>
-                    <Input id="lastName" placeholder="Your last name" required />
+                    <Input 
+                      id="lastName" 
+                      name="lastName"
+                      value={formData.lastName}
+                      onChange={handleInputChange}
+                      placeholder="Your last name" 
+                      required 
+                    />
                   </div>
                 </div>
                 
@@ -110,21 +208,43 @@ export default function ContactPage() {
                   <label htmlFor="email" className="block text-sm font-medium mb-2">
                     Email
                   </label>
-                  <Input id="email" type="email" placeholder="your.email@example.com" required />
+                  <Input 
+                    id="email" 
+                    name="email"
+                    type="email" 
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    placeholder="your.email@example.com" 
+                    required 
+                  />
                 </div>
 
                 <div>
                   <label htmlFor="phone" className="block text-sm font-medium mb-2">
                     Phone Number
                   </label>
-                  <Input id="phone" type="tel" placeholder="+91 98765 43210" />
+                  <Input 
+                    id="phone" 
+                    name="phone"
+                    type="tel" 
+                    value={formData.phone}
+                    onChange={handleInputChange}
+                    placeholder="+91 98765 43210" 
+                  />
                 </div>
 
                 <div>
                   <label htmlFor="subject" className="block text-sm font-medium mb-2">
                     Subject
                   </label>
-                  <Input id="subject" placeholder="What's this about?" required />
+                  <Input 
+                    id="subject" 
+                    name="subject"
+                    value={formData.subject}
+                    onChange={handleInputChange}
+                    placeholder="What's this about?" 
+                    required 
+                  />
                 </div>
 
                 <div>
@@ -133,6 +253,9 @@ export default function ContactPage() {
                   </label>
                   <textarea
                     id="message"
+                    name="message"
+                    value={formData.message}
+                    onChange={handleInputChange}
                     rows={5}
                     className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                     placeholder="Tell us more about your inquiry..."
@@ -140,10 +263,21 @@ export default function ContactPage() {
                   />
                 </div>
 
-                <Button type="submit" className="w-full">
-                  <Send className="h-4 w-4 mr-2" />
-                  Send Message
-                </Button>
+                <div className="flex gap-3">
+                  <Button type="submit" className="flex-1" disabled={isSubmitting}>
+                    <Send className="h-4 w-4 mr-2" />
+                    {isSubmitting ? 'Sending...' : 'Send via Email'}
+                  </Button>
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={handleWhatsAppClick}
+                    className="flex-1 bg-green-50 border-green-200 text-green-700 hover:bg-green-100"
+                  >
+                    <MessageCircle className="h-4 w-4 mr-2" />
+                    Send via WhatsApp
+                  </Button>
+                </div>
               </form>
             </CardContent>
           </Card>
@@ -160,21 +294,27 @@ export default function ContactPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               {contactMethods.map((method, index) => (
-                <div key={index} className="flex items-start gap-3">
+                <div key={index} className={`flex items-start gap-3 p-3 rounded-lg ${method.isWhatsApp ? 'bg-green-50 border border-green-200' : 'hover:bg-gray-50'}`}>
                   <div className="mt-1">
                     {method.icon}
                   </div>
-                  <div>
+                  <div className="flex-1">
                     <h3 className="font-semibold">{method.title}</h3>
                     <a 
                       href={method.link}
-                      className="text-primary hover:underline block"
+                      className={`block ${method.isWhatsApp ? 'text-green-700 hover:text-green-800' : 'text-primary hover:underline'}`}
+                      target={method.isWhatsApp ? '_blank' : undefined}
                     >
                       {method.value}
                     </a>
                     <p className="text-sm text-muted-foreground">
                       {method.description}
                     </p>
+                    {method.isWhatsApp && (
+                      <Badge className="mt-2 bg-green-100 text-green-800">
+                        Instant Response
+                      </Badge>
+                    )}
                   </div>
                 </div>
               ))}

@@ -1,4 +1,5 @@
-import { Metadata } from 'next'
+'use client'
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -7,25 +8,66 @@ import { formatDate, formatPrice, getPlatformColor, getPlatformName } from '@/li
 import Link from 'next/link'
 import Image from 'next/image'
 import { Plus, Edit, Trash2, Eye, Star, MapPin } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { toast } from 'sonner'
 
 // Force dynamic rendering to avoid build-time database calls
 export const dynamic = 'force-dynamic'
 
-export const metadata: Metadata = {
-  title: 'Deals Management | Admin Dashboard',
-  description: 'Manage product deals and offers',
-}
+export default function DealsManagementPage() {
+  const [dealsData, setDealsData] = useState<any[]>([])
+  const [isLoading, setIsLoading] = useState(true)
 
-export default async function DealsManagementPage() {
-  // Fetch all deals from database using simple connection
-  const deals = await getDeals(100) // Get more deals for management page
+  useEffect(() => {
+    const fetchDeals = async () => {
+      try {
+        const response = await fetch('/api/admin/deals')
+        if (response.ok) {
+          const data = await response.json()
+          setDealsData(data)
+        }
+      } catch (error) {
+        console.error('Error fetching deals:', error)
+        toast.error('Failed to load deals')
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    fetchDeals()
+  }, [])
 
-  // Transform deals data
-  const dealsData = deals.map(deal => ({
-    ...deal,
-    gallery: deal.gallery, // Already processed in simple-db
-    clickCount: deal._count?.clicks || 0
-  }))
+  const handleDeleteDeal = async (dealId: string, dealTitle: string) => {
+    if (!confirm(`Are you sure you want to delete "${dealTitle}"?`)) {
+      return
+    }
+
+    try {
+      const response = await fetch(`/api/admin/deals/${dealId}`, {
+        method: 'DELETE',
+      })
+
+      if (response.ok) {
+        setDealsData(prev => prev.filter(deal => deal.id !== dealId))
+        toast.success('Deal deleted successfully')
+      } else {
+        const error = await response.json()
+        toast.error(error.error || 'Failed to delete deal')
+      }
+    } catch (error) {
+      console.error('Error deleting deal:', error)
+      toast.error('Failed to delete deal')
+    }
+  }
+
+  if (isLoading) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-lg">Loading deals...</div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -140,7 +182,7 @@ export default async function DealsManagementPage() {
                   <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
                     <span>{formatPrice(deal.salePrice || deal.price)}</span>
                     <span>{deal.clickCount} clicks</span>
-                    <span>{formatDate(deal.createdAt.toISOString())}</span>
+                    <span>{formatDate(deal.createdAt)}</span>
                   </div>
                 </div>
 
@@ -156,7 +198,12 @@ export default async function DealsManagementPage() {
                       <Edit className="h-4 w-4" />
                     </Button>
                   </Link>
-                  <Button variant="ghost" size="sm" className="text-red-500 hover:text-red-700">
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="text-red-500 hover:text-red-700"
+                    onClick={() => handleDeleteDeal(deal.id, deal.title)}
+                  >
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>

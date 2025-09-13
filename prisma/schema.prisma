@@ -174,3 +174,18 @@ model View {
 
   @@map("views")
 }
+
+// Contact information model for dynamic contact management
+model ContactInfo {
+  id            String   @id @default(cuid())
+  email         String
+  phone         String
+  whatsapp      String
+  address       String
+  businessHours String
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("contact_info")
+}

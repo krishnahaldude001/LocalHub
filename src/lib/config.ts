@@ -41,14 +41,17 @@ export const config = {
   
   // Contact information
   contact: {
-    email: 'hello@localhub.com',
+    email: 'admin@localhub.space',
     phone: '+91-9876543210',
-    address: 'Mumbai, Maharashtra, India'
+    whatsapp: '+91-9876543210',
+    address: 'Mumbai, Maharashtra, India',
+    businessHours: '9:00 AM - 6:00 PM (Mon-Fri), 10:00 AM - 4:00 PM (Sat)'
   },
   
   // Social media
   social: {
     whatsapp: 'https://wa.me/919876543210',
+    whatsappBusiness: 'https://wa.me/919876543210?text=Hi! I want to know more about LocalHub services.',
     twitter: 'https://twitter.com/localhub',
     facebook: 'https://facebook.com/localhub',
     instagram: 'https://instagram.com/localhub'

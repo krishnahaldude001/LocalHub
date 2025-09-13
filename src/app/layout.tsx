@@ -5,6 +5,7 @@ import { ThemeProvider } from '@/components/theme-provider'
 import AuthSessionProvider from '@/components/session-provider'
 import Header from '@/components/header'
 import Footer from '@/components/footer'
+import WhatsAppButton from '@/components/whatsapp-button'
 import { config } from '@/lib/config'
 import { Toaster } from 'sonner'
 
@@ -65,6 +66,7 @@ export default function RootLayout({
               </main>
               <Footer />
             </div>
+            <WhatsAppButton />
             <Toaster />
           </ThemeProvider>
         </AuthSessionProvider>

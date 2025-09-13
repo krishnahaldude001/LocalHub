@@ -1,4 +1,5 @@
-import { Metadata } from 'next'
+'use client'
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -7,17 +8,66 @@ import { formatDate } from '@/lib/utils'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Plus, Edit, Trash2, Eye, Calendar, MapPin, Tag } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { toast } from 'sonner'
 
 // Force dynamic rendering to avoid build-time database calls
 export const dynamic = 'force-dynamic'
 
-export const metadata: Metadata = {
-  title: 'News Management | Admin Dashboard',
-  description: 'Manage news articles and content',
-}
+export default function NewsManagementPage() {
+  const [news, setNews] = useState<any[]>([])
+  const [isLoading, setIsLoading] = useState(true)
 
-export default async function NewsManagementPage() {
-  const news = await getPosts(100)
+  useEffect(() => {
+    const fetchNews = async () => {
+      try {
+        const response = await fetch('/api/admin/news')
+        if (response.ok) {
+          const data = await response.json()
+          setNews(data)
+        }
+      } catch (error) {
+        console.error('Error fetching news:', error)
+        toast.error('Failed to load news articles')
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    fetchNews()
+  }, [])
+
+  const handleDeleteArticle = async (articleId: string, articleTitle: string) => {
+    if (!confirm(`Are you sure you want to delete "${articleTitle}"?`)) {
+      return
+    }
+
+    try {
+      const response = await fetch(`/api/admin/news/${articleId}`, {
+        method: 'DELETE',
+      })
+
+      if (response.ok) {
+        setNews(prev => prev.filter(article => article.id !== articleId))
+        toast.success('Article deleted successfully')
+      } else {
+        const error = await response.json()
+        toast.error(error.error || 'Failed to delete article')
+      }
+    } catch (error) {
+      console.error('Error deleting article:', error)
+      toast.error('Failed to delete article')
+    }
+  }
+
+  if (isLoading) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-lg">Loading news articles...</div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -112,7 +162,7 @@ export default async function NewsManagementPage() {
                     <Badge variant="secondary">{article.area}</Badge>
                     <div className="flex items-center gap-1 text-xs text-muted-foreground">
                       <Calendar className="h-3 w-3" />
-                      {formatDate(article.publishedAt.toISOString())}
+                      {formatDate(article.publishedAt)}
                     </div>
                   </div>
                   <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
@@ -135,7 +185,12 @@ export default async function NewsManagementPage() {
                       <Edit className="h-4 w-4" />
                     </Button>
                   </Link>
-                  <Button variant="ghost" size="sm" className="text-red-500 hover:text-red-700">
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="text-red-500 hover:text-red-700"
+                    onClick={() => handleDeleteArticle(article.id, article.title)}
+                  >
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>

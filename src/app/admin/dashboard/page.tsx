@@ -21,7 +21,8 @@ import {
   FileText,
   ShoppingBag,
   Newspaper,
-  Globe
+  Globe,
+  Phone
 } from 'lucide-react'
 
 // Force dynamic rendering to avoid build-time database calls
@@ -235,6 +236,37 @@ export default async function AdminDashboard() {
               <Link href="/admin/pages" className="flex-1">
                 <Button className="w-full" size="sm">
                   <Eye className="h-4 w-4 mr-2" />
+                  Manage
+                </Button>
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
+        )}
+
+        {/* Contact Management - Only show if user can manage settings */}
+        {hasPermission(userRole, 'canManageSettings') && (
+          <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Phone className="h-5 w-5" />
+              Contact Management
+            </CardTitle>
+            <CardDescription>Manage business contact information</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-sm">Email</span>
+              <Badge variant="secondary">{config.contact.email}</Badge>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm">Phone</span>
+              <Badge variant="secondary">{config.contact.phone}</Badge>
+            </div>
+            <div className="flex gap-2">
+              <Link href="/admin/contact" className="flex-1">
+                <Button className="w-full" size="sm">
+                  <Phone className="h-4 w-4 mr-2" />
                   Manage
                 </Button>
               </Link>
