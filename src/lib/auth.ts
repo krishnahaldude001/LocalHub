@@ -2,7 +2,7 @@ import { NextAuthOptions } from 'next-auth'
 import EmailProvider from 'next-auth/providers/email'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import { PrismaAdapter } from '@next-auth/prisma-adapter'
-import { prisma } from '@/lib/db'
+import { createPrismaClient } from '@/lib/db-connection'
 import bcrypt from 'bcryptjs'
 
 // Extend the built-in session types
@@ -35,7 +35,7 @@ const customEmailProvider = {
 }
 
 export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma),
+  adapter: PrismaAdapter(createPrismaClient()),
   providers: [
     // Credentials provider for username/password
     CredentialsProvider({
@@ -49,19 +49,47 @@ export const authOptions: NextAuthOptions = {
           return null
         }
 
-        const user = await prisma.user.findUnique({
+        const prisma = createPrismaClient();
+        
+        // Try to find user by email or mobile number
+        let user = await prisma.user.findUnique({
           where: { email: credentials.email }
         })
 
+        // If not found by exact email, try to find by mobile number variations
+        if (!user) {
+          const mobileVariations = [
+            credentials.email,
+            credentials.email.replace(/\s/g, ''), // Remove spaces
+            credentials.email.replace(/\+/g, ''), // Remove +
+            credentials.email.replace(/\s/g, '').replace(/\+/g, ''), // Remove both
+          ]
+
+          for (const variation of mobileVariations) {
+            user = await prisma.user.findFirst({
+              where: { 
+                email: {
+                  contains: variation
+                }
+              }
+            })
+            if (user) break
+          }
+        }
+
         if (!user || !user.password) {
+          console.log('User not found or no password:', credentials.email)
           return null
         }
 
         const isPasswordValid = await bcrypt.compare(credentials.password, user.password)
 
         if (!isPasswordValid) {
+          console.log('Invalid password for user:', user.email)
           return null
         }
+
+        console.log('Login successful for user:', user.email, 'Role:', user.role)
 
         return {
           id: user.id,
@@ -109,6 +137,18 @@ export const authOptions: NextAuthOptions = {
         console.error('JWT callback error:', error)
         return token
       }
+    },
+    async redirect({ url, baseUrl }) {
+      // If it's a relative URL, make it absolute
+      if (url.startsWith('/')) {
+        return `${baseUrl}${url}`
+      }
+      // If it's the same origin, allow it
+      if (new URL(url).origin === baseUrl) {
+        return url
+      }
+      // Default redirect to home
+      return baseUrl
     },
   },
   pages: {

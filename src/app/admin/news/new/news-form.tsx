@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import RichTextEditor from '@/components/rich-text-editor'
+import ImageUpload from '@/components/image-upload'
 import { config } from '@/lib/config'
 import { Save } from 'lucide-react'
 
@@ -163,15 +164,11 @@ export default function NewsForm() {
 
       {/* Featured Image */}
       <div className="space-y-2">
-        <Label htmlFor="image">Featured Image URL *</Label>
-        <Input
-          id="image"
-          name="image"
-          type="url"
+        <Label>Featured Image *</Label>
+        <ImageUpload
           value={formData.image}
-          onChange={handleInputChange}
-          placeholder="https://images.unsplash.com/photo-..."
-          required
+          onChange={(url) => setFormData(prev => ({ ...prev, image: url }))}
+          placeholder="Enter image URL or upload a file"
         />
       </div>
 

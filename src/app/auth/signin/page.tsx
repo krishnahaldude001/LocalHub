@@ -20,7 +20,20 @@ export default async function SignInPage() {
   const session = await getServerSession(authOptions)
   
   if (session) {
-    redirect('/admin/dashboard')
+    // Role-based redirection
+    const userRole = session.user?.role || 'user'
+    switch (userRole) {
+      case 'admin':
+      case 'editor':
+      case 'dealer':
+      case 'news_writer':
+        redirect('/admin/dashboard')
+        break
+      case 'user':
+      default:
+        redirect('/my-shops')
+        break
+    }
   }
 
   return (
@@ -36,7 +49,7 @@ export default async function SignInPage() {
             Sign in to your account
           </h2>
           <p className="mt-2 text-sm text-gray-600">
-            Enter your email to receive a magic link
+            Sign in with your username and password, or use magic link
           </p>
         </div>
 

@@ -26,7 +26,7 @@ interface DealsPageProps {
 export async function generateMetadata({ params }: DealsPageProps): Promise<Metadata> {
   const deal = await prisma.deal.findUnique({
     where: { slug: params.slug },
-    include: { platform: true }
+    include: { platform: true, shop: true }
   })
 
   if (!deal) {
@@ -44,7 +44,7 @@ export async function generateMetadata({ params }: DealsPageProps): Promise<Meta
 export default async function DealsPage({ params }: DealsPageProps) {
   const deal = await prisma.deal.findUnique({
     where: { slug: params.slug },
-    include: { platform: true }
+    include: { platform: true, shop: true }
   })
   
   if (!deal) {
@@ -65,12 +65,13 @@ export default async function DealsPage({ params }: DealsPageProps) {
         {
           OR: [
             { area: deal.area },
-            { platformId: deal.platformId }
+            { platformId: deal.platformId },
+            { shopId: deal.shopId }
           ]
         }
       ]
     },
-    include: { platform: true },
+    include: { platform: true, shop: true },
     take: 3
   })
 
@@ -136,8 +137,8 @@ export default async function DealsPage({ params }: DealsPageProps) {
         <div className="space-y-6">
           {/* Platform and Rating */}
           <div className="flex items-center justify-between">
-            <Badge className={`${dealData.platform.color} text-white`}>
-              {dealData.platform.name}
+            <Badge className={`${dealData.platform?.color || 'bg-blue-500'} text-white`}>
+              {dealData.platform?.name || dealData.shop?.name || 'Local Shop'}
             </Badge>
             <div className="flex items-center gap-1">
               <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
@@ -209,7 +210,17 @@ export default async function DealsPage({ params }: DealsPageProps) {
 
           {/* CTA Buttons */}
           <div className="space-y-6">
-            <DealClient deal={dealData} />
+            <DealClient deal={{
+              ...dealData,
+              salePrice: dealData.salePrice || dealData.price,
+              price: dealData.price || 0,
+              shop: dealData.shop ? {
+                name: dealData.shop.name,
+                slug: dealData.shop.slug,
+                phone: dealData.shop.phone,
+                whatsapp: dealData.shop.whatsapp || undefined
+              } : null
+            }} />
             
             {/* Social Sharing */}
             <div className="border-t pt-6">
@@ -258,8 +269,8 @@ export default async function DealsPage({ params }: DealsPageProps) {
                 </div>
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between mb-2">
-                    <Badge className={relatedDeal.platform.color}>
-                      {relatedDeal.platform.name}
+                    <Badge className={relatedDeal.platform?.color || 'bg-blue-500'}>
+                      {relatedDeal.platform?.name || relatedDeal.shop?.name || 'Local Shop'}
                     </Badge>
                     <div className="flex items-center gap-1">
                       <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />

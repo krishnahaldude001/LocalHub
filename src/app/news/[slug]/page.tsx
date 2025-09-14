@@ -8,7 +8,7 @@ import { config } from '@/lib/config'
 import { formatDate } from '@/lib/utils'
 import RichTextRenderer from '@/components/rich-text-renderer'
 import YouTubeEmbed from '@/components/youtube-embed'
-import { extractYouTubeFromContent } from '@/lib/content-utils'
+import { extractYouTubeFromContent, parseContentWithYouTube } from '@/lib/content-utils'
 import Link from 'next/link'
 import Image from 'next/image'
 import { ArrowLeft, Calendar, MapPin, User, Tag } from 'lucide-react'
@@ -58,6 +58,9 @@ export default async function NewsPage({ params }: NewsPageProps) {
   if (!post) {
     notFound()
   }
+
+  // Parse the content to handle JSON format
+  const parsedContent = parseContentWithYouTube(post.content)
 
   // Find related posts (same area or category)
   const relatedPosts = await prisma.post.findMany({
@@ -136,11 +139,11 @@ export default async function NewsPage({ params }: NewsPageProps) {
           </p>
           
           {/* YouTube Video */}
-          {post.youtubeUrl && (
+          {parsedContent.youtubeUrl && (
             <div className="mb-8">
               <h3 className="text-lg font-semibold mb-3">Related Video</h3>
               <YouTubeEmbed 
-                url={post.youtubeUrl} 
+                url={parsedContent.youtubeUrl} 
                 title={post.title}
                 className="w-full"
               />
@@ -148,7 +151,7 @@ export default async function NewsPage({ params }: NewsPageProps) {
           )}
           
           <div className="text-base leading-relaxed">
-            <RichTextRenderer content={post.content} />
+            <RichTextRenderer content={parsedContent.content} />
           </div>
         </div>
 

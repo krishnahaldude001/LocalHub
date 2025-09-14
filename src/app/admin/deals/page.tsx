@@ -100,31 +100,31 @@ export default function DealsManagementPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Clicks</CardTitle>
+            <CardTitle className="text-sm font-medium">Total Interactions</CardTitle>
             <Badge variant="secondary">
-              {dealsData.reduce((sum, deal) => sum + deal.clickCount, 0)}
+              {dealsData.reduce((sum, deal) => sum + (deal.clickCount || deal._count?.orders || 0), 0)}
             </Badge>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {dealsData.reduce((sum, deal) => sum + deal.clickCount, 0)}
+              {dealsData.reduce((sum, deal) => sum + (deal.clickCount || deal._count?.orders || 0), 0)}
             </div>
-            <p className="text-xs text-muted-foreground">Affiliate clicks tracked</p>
+            <p className="text-xs text-muted-foreground">Clicks & Orders tracked</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Platforms</CardTitle>
+            <CardTitle className="text-sm font-medium">Sources</CardTitle>
             <Badge variant="secondary">
-              {new Set(dealsData.map(d => d.platform.name)).size}
+              {new Set(dealsData.map(d => d.platform?.name || d.shop?.name || 'Unknown')).size}
             </Badge>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {new Set(dealsData.map(d => d.platform.name)).size}
+              {new Set(dealsData.map(d => d.platform?.name || d.shop?.name || 'Unknown')).size}
             </div>
-            <p className="text-xs text-muted-foreground">Different platforms</p>
+            <p className="text-xs text-muted-foreground">Platforms & Shops</p>
           </CardContent>
         </Card>
 
@@ -170,18 +170,25 @@ export default function DealsManagementPage() {
                 <div className="flex-1 min-w-0">
                   <h3 className="font-medium truncate">{deal.title}</h3>
                   <div className="flex items-center gap-2 mt-1">
-                    <Badge className={deal.platform.color}>
-                      {deal.platform.name}
+                    <Badge className={deal.platform?.color || deal.shop?.isVerified ? 'bg-green-500' : 'bg-blue-500'}>
+                      {deal.platform?.name || deal.shop?.name || 'Unknown'}
                     </Badge>
                     <Badge variant="outline">{deal.area}</Badge>
-                    <div className="flex items-center gap-1">
-                      <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                      <span className="text-xs">{deal.rating}</span>
-                    </div>
+                    {deal.rating && (
+                      <div className="flex items-center gap-1">
+                        <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                        <span className="text-xs">{deal.rating}</span>
+                      </div>
+                    )}
+                    {deal.cod && (
+                      <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
+                        💳 COD
+                      </Badge>
+                    )}
                   </div>
                   <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
                     <span>{formatPrice(deal.salePrice || deal.price)}</span>
-                    <span>{deal.clickCount} clicks</span>
+                    <span>{deal.clickCount || deal._count?.orders || 0} {deal.shop ? 'orders' : 'clicks'}</span>
                     <span>{formatDate(deal.createdAt)}</span>
                   </div>
                 </div>

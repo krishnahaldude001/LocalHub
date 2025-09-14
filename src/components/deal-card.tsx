@@ -6,8 +6,9 @@ import { Button } from '@/components/ui/button'
 import { formatPrice } from '@/lib/utils'
 import Link from 'next/link'
 import Image from 'next/image'
-import { ArrowRight, ShoppingCart } from 'lucide-react'
+import { ArrowRight, ShoppingCart, Eye, CreditCard } from 'lucide-react'
 import ClickTracker from '@/components/click-tracker'
+import CODOrderForm from '@/components/cod-order-form'
 
 interface DealCardProps {
   deal: {
@@ -21,8 +22,14 @@ interface DealCardProps {
     cod: boolean
     platform: {
       name: string
-    }
-    affiliateUrl: string
+    } | null
+    shop: {
+      name: string
+      slug?: string
+      phone?: string
+      whatsapp?: string
+    } | null
+    affiliateUrl?: string | null
   }
   showDirectLink?: boolean
   className?: string
@@ -86,25 +93,34 @@ export default function DealCard({ deal, showDirectLink = false, className = "" 
             )}
           </div>
           
-          {showDirectLink ? (
-            <ClickTracker
-              dealId={deal.id}
-              affiliateUrl={deal.affiliateUrl}
-              platformName={deal.platform.name}
-              className="w-full group/btn hover:shadow-md transition-all duration-200 bg-gradient-primary hover:opacity-90"
-            >
-              <ShoppingCart className="h-4 w-4 mr-2" />
-              Buy on {deal.platform.name}
-              <ArrowRight className="h-4 w-4 ml-1 group-hover/btn:translate-x-1 transition-transform duration-200" />
-            </ClickTracker>
-          ) : (
+          <div className="space-y-2">
+            {/* View Details Button - Always show */}
             <Link href={`/deals/${deal.slug}`}>
-              <Button className="w-full group/btn hover:shadow-md transition-all duration-200 bg-gradient-primary hover:opacity-90">
-                View Deal
+              <Button className="w-full group/btn hover:shadow-md transition-all duration-200 bg-blue-600 hover:bg-blue-700">
+                <Eye className="h-4 w-4 mr-2" />
+                View Details
                 <ArrowRight className="h-4 w-4 ml-1 group-hover/btn:translate-x-1 transition-transform duration-200" />
               </Button>
             </Link>
-          )}
+            
+            {/* Buy/COD Button - Show based on deal type */}
+            {deal.platform && deal.affiliateUrl ? (
+              // Affiliate deal - show buy button
+              <ClickTracker
+                dealId={deal.id}
+                affiliateUrl={deal.affiliateUrl}
+                platformName={deal.platform.name}
+                className="w-full group/btn hover:shadow-md transition-all duration-200 bg-gradient-primary hover:opacity-90"
+              >
+                <ShoppingCart className="h-4 w-4 mr-2" />
+                Buy on {deal.platform.name}
+                <ArrowRight className="h-4 w-4 ml-1 group-hover/btn:translate-x-1 transition-transform duration-200" />
+              </ClickTracker>
+            ) : deal.cod && deal.shop ? (
+              // Local shop deal with COD - use CODOrderForm
+              <CODOrderForm deal={deal as any} />
+            ) : null}
+          </div>
         </div>
       </CardContent>
     </Card>

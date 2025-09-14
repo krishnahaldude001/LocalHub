@@ -17,6 +17,7 @@ export const ROLE_PERMISSIONS = {
     canManageNews: true,
     canManagePages: true,
     canManagePlatforms: true,
+    canManageShops: true,
     canViewAnalytics: true,
     canManageSettings: true,
   },
@@ -26,6 +27,7 @@ export const ROLE_PERMISSIONS = {
     canManageNews: true,
     canManagePages: false,
     canManagePlatforms: true,
+    canManageShops: true,
     canViewAnalytics: true,
     canManageSettings: false,
   },
@@ -35,6 +37,7 @@ export const ROLE_PERMISSIONS = {
     canManageNews: false,
     canManagePages: false,
     canManagePlatforms: false,
+    canManageShops: false,
     canViewAnalytics: true,
     canManageSettings: false,
   },
@@ -44,6 +47,7 @@ export const ROLE_PERMISSIONS = {
     canManageNews: true,
     canManagePages: false,
     canManagePlatforms: false,
+    canManageShops: false,
     canViewAnalytics: true,
     canManageSettings: false,
   },
@@ -53,6 +57,7 @@ export const ROLE_PERMISSIONS = {
     canManageNews: false,
     canManagePages: false,
     canManagePlatforms: false,
+    canManageShops: false,
     canViewAnalytics: false,
     canManageSettings: false,
   },
@@ -109,6 +114,10 @@ export function getAdminNavItems(userRole: UserRole) {
   
   if (hasPermission(userRole, 'canManagePlatforms')) {
     items.push({ href: '/admin/platforms', label: 'Platforms', icon: 'Globe' })
+  }
+  
+  if (hasPermission(userRole, 'canManageShops')) {
+    items.push({ href: '/admin/shops', label: 'Shops', icon: 'Store' })
   }
   
   if (hasPermission(userRole, 'canViewAnalytics')) {

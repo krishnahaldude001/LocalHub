@@ -49,7 +49,9 @@ async function main() {
         'https://picsum.photos/400/300?random=2',
         'https://picsum.photos/400/300?random=3'
       ]),
-      area: 'Govandi'
+      area: 'Govandi',
+      category: 'Electronics',
+      discountType: 'percentage'
     },
     {
       slug: 'flipkart-samsung-galaxy-m34',
@@ -65,7 +67,9 @@ async function main() {
       gallery: JSON.stringify([
         'https://picsum.photos/400/300?random=5'
       ]),
-      area: 'Shivaji Nagar'
+      area: 'Shivaji Nagar',
+      category: 'Electronics',
+      discountType: 'percentage'
     },
     {
       slug: 'meesho-casual-tshirts-pack',
@@ -81,7 +85,9 @@ async function main() {
       gallery: JSON.stringify([
         'https://picsum.photos/400/300?random=7'
       ]),
-      area: 'Baiganwadi'
+      area: 'Baiganwadi',
+      category: 'Fashion',
+      discountType: 'percentage'
     },
     {
       slug: 'ajio-women-kurti-set',
@@ -97,7 +103,9 @@ async function main() {
       gallery: JSON.stringify([
         'https://picsum.photos/400/300?random=9'
       ]),
-      area: 'Govandi'
+      area: 'Govandi',
+      category: 'Fashion',
+      discountType: 'percentage'
     },
     {
       slug: 'myntra-sports-shoes',
@@ -113,7 +121,9 @@ async function main() {
       gallery: JSON.stringify([
         'https://picsum.photos/400/300?random=11'
       ]),
-      area: 'Shivaji Nagar'
+      area: 'Shivaji Nagar',
+      category: 'Fashion',
+      discountType: 'percentage'
     }
   ]
 

@@ -12,20 +12,26 @@ import Image from 'next/image'
 import { ArrowRight, Star, MapPin, Calendar } from 'lucide-react'
 import ClickableAreaBadges from '@/components/clickable-area-badges'
 import SocialMediaButtons from '@/components/social-media-buttons'
+import DealCard from '@/components/deal-card'
+import WhatsAppContact from '@/components/whatsapp-contact'
 
 // Force dynamic rendering to avoid build-time database calls
 export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
-  title: `${config.appName} - Mumbai Local News & Deals`,
-  description: `${config.appDescription} in Mumbai - covering ${config.defaultLocation.areas.slice(0, 5).join(', ')} and more areas.`,
+  title: `${config.appName} - Mumbai Local Deals & News`,
+  description: `Discover amazing deals from local shops and stay updated with local news in Mumbai - covering ${config.defaultLocation.areas.slice(0, 5).join(', ')} and more areas.`,
 }
 
-export default async function HomePage() {
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams: { area?: string }
+}) {
   // Fetch deals and news from database using simple connection
   const [dbDeals, news] = await Promise.all([
-    getDeals(6),
-    getPosts(6)
+    getDeals(6, searchParams.area),
+    getPosts(6, searchParams.area)
   ])
 
   // Transform database deals to match the expected format
@@ -47,14 +53,38 @@ export default async function HomePage() {
         {/* Content */}
         <div className="relative z-10 py-12">
           <h1 className="text-4xl md:text-6xl font-bold mb-6">
-            Welcome to <span className="text-gradient-primary">{config.appName}</span>
+            {searchParams.area ? (
+              <>
+                <span className="text-gradient-primary">{searchParams.area}</span> Local Hub
+              </>
+            ) : (
+              <>
+                Welcome to <span className="text-gradient-primary">{config.appName}</span>
+              </>
+            )}
           </h1>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-8 leading-relaxed">
-            {config.appDescription} in Mumbai - covering {areas.slice(0, 5).join(', ')} and more areas.
+            {searchParams.area ? (
+              `Discover amazing deals from local shops and stay updated with local news in ${searchParams.area}.`
+            ) : (
+              `Discover amazing deals from local shops and stay updated with local news in Mumbai - covering ${areas.slice(0, 5).join(', ')} and more areas.`
+            )}
           </p>
           
           {/* Enhanced Area Badges */}
-          <ClickableAreaBadges areas={areas} />
+          <ClickableAreaBadges areas={areas} selectedArea={searchParams.area} />
+          
+          {/* Clear Location Button */}
+          {searchParams.area && (
+            <div className="mt-4">
+              <Link href="/">
+                <Button variant="outline" size="sm">
+                  <MapPin className="h-4 w-4 mr-2" />
+                  Show All Areas
+                </Button>
+              </Link>
+            </div>
+          )}
           
           {/* Quick Stats */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-2xl mx-auto">
@@ -71,15 +101,32 @@ export default async function HomePage() {
               <div className="text-sm text-muted-foreground">Mumbai Areas</div>
             </div>
           </div>
+          
+          {/* WhatsApp Contact Button */}
+          <div className="mt-8">
+            <WhatsAppContact 
+              message="Hi Krishna, I came from your website"
+              className="shadow-lg"
+            />
+          </div>
         </div>
       </div>
 
       {/* Main Content Tabs */}
-      <Tabs defaultValue="news" className="w-full">
+      <Tabs defaultValue="deals" className="w-full">
         <TabsList className="grid w-full grid-cols-2 mb-8">
+          <TabsTrigger value="deals">Local Deals</TabsTrigger>
           <TabsTrigger value="news">Latest News</TabsTrigger>
-          <TabsTrigger value="deals">Today's Deals</TabsTrigger>
         </TabsList>
+
+        {/* Deals Tab */}
+        <TabsContent value="deals" className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {deals.map((deal) => (
+              <DealCard key={deal.id} deal={deal} />
+            ))}
+          </div>
+        </TabsContent>
 
         {/* News Tab */}
         <TabsContent value="news" className="space-y-6">
@@ -132,109 +179,31 @@ export default async function HomePage() {
           </div>
         </TabsContent>
 
-        {/* Deals Tab */}
-        <TabsContent value="deals" className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {deals.map((deal) => (
-              <Card key={deal.id} className="group overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-border/50 hover:border-primary/20">
-                <div className="relative h-48 overflow-hidden">
-                  <Image
-                    src={deal.image || '/placeholder-product.svg'}
-                    alt={deal.title}
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                  {/* Gradient overlay for better text readability */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  
-                  <div className="absolute top-3 left-3">
-                    <Badge className="bg-gradient-primary text-white shadow-lg border-0">
-                      {deal.area}
-                    </Badge>
-                  </div>
-                  {deal.salePrice && (
-                    <div className="absolute top-3 right-3">
-                      <Badge className="bg-gradient-to-r from-red-500 to-red-600 text-white shadow-lg animate-pulse">
-                        -{getDiscountPercentage(deal.price, deal.salePrice)}%
-                      </Badge>
-                    </div>
-                  )}
-                </div>
-                <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between mb-2">
-                    <Badge className={deal.platform.color}>
-                      {deal.platform.name}
-                    </Badge>
-                    <div className="flex items-center gap-1">
-                      <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                      <span className="text-sm font-medium">{deal.rating}</span>
-                    </div>
-                  </div>
-                  <CardTitle className="line-clamp-2 text-lg">
-                    <Link href={`/deals/${deal.slug}`} className="hover:text-primary transition-colors">
-                      {deal.title}
-                    </Link>
-                  </CardTitle>
-                  <CardDescription className="line-clamp-2">
-                    {deal.description}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="pt-0">
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        {deal.salePrice ? (
-                          <>
-                            <span className="text-2xl font-bold text-primary bg-primary/10 px-2 py-1 rounded-md">
-                              {formatPrice(deal.salePrice)}
-                            </span>
-                            <span className="text-sm text-muted-foreground line-through">
-                              {formatPrice(deal.price)}
-                            </span>
-                          </>
-                        ) : (
-                          <span className="text-2xl font-bold text-primary">
-                            {formatPrice(deal.price)}
-                          </span>
-                        )}
-                      </div>
-                      {deal.cod && (
-                        <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
-                          💳 COD
-                        </Badge>
-                      )}
-                    </div>
-                    <Link href={`/deals/${deal.slug}`}>
-                      <Button className="w-full group/btn hover:shadow-md transition-all duration-200 bg-gradient-primary hover:opacity-90">
-                        View Deal
-                        <ArrowRight className="h-4 w-4 ml-1 group-hover/btn:translate-x-1 transition-transform duration-200" />
-                      </Button>
-                    </Link>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </TabsContent>
       </Tabs>
 
       {/* CTA Section */}
       <div className="mt-16 text-center">
         <div className="bg-gradient-to-r from-primary/10 to-secondary/10 rounded-2xl p-8">
-          <h2 className="text-2xl font-bold mb-4">Stay Updated with Local News</h2>
+          <h2 className="text-2xl font-bold mb-4">Discover Local Deals & Stay Updated</h2>
           <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
-            Get the latest updates about your area, exclusive deals, and community events delivered to your inbox.
+            Find amazing deals from local shops in your area and stay updated with the latest local news and community events.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-6">
-            <Link href="/news">
+            <Link href="/deals">
               <Button size="lg">
-                Browse All News
+                Browse Local Deals
                 <ArrowRight className="h-4 w-4 ml-1" />
               </Button>
             </Link>
-            <Link href="/deals">
+            <Link href="/shop/register">
               <Button variant="outline" size="lg">
-                Explore Deals
+                Register Your Shop
+                <ArrowRight className="h-4 w-4 ml-1" />
+              </Button>
+            </Link>
+            <Link href="/news">
+              <Button variant="outline" size="lg">
+                Latest News
                 <ArrowRight className="h-4 w-4 ml-1" />
               </Button>
             </Link>

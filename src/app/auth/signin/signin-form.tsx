@@ -8,8 +8,9 @@ import { Label } from '@/components/ui/label'
 import { Mail, Loader2, Lock, User } from 'lucide-react'
 
 export default function SignInForm() {
-  const [email, setEmail] = useState('')
+  const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
+  const [email, setEmail] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [message, setMessage] = useState('')
   const [authMethod, setAuthMethod] = useState<'credentials' | 'email'>('credentials')
@@ -21,16 +22,52 @@ export default function SignInForm() {
 
     try {
       const result = await signIn('credentials', {
-        email,
+        email: username, // Use username as email for NextAuth
         password,
         redirect: false,
         callbackUrl: '/admin/dashboard'
       })
 
       if (result?.error) {
-        setMessage('Invalid email or password.')
+        setMessage('Invalid username or password.')
       } else if (result?.ok) {
-        window.location.href = '/admin/dashboard'
+        // Get user role and redirect accordingly
+        const response = await fetch('/api/auth/session')
+        const session = await response.json()
+        const userRole = session?.user?.role || 'user'
+        
+        // Role-based redirection
+        let redirectUrl = '/'
+        switch (userRole) {
+          case 'admin':
+          case 'editor':
+          case 'dealer':
+          case 'news_writer':
+            redirectUrl = '/admin/dashboard'
+            break
+          case 'user':
+            // Check if user has shops
+            try {
+              const shopsResponse = await fetch('/api/user/shops')
+              if (shopsResponse.ok) {
+                const shopsData = await shopsResponse.json()
+                if (shopsData.shops && shopsData.shops.length > 0) {
+                  redirectUrl = '/my-shops'
+                } else {
+                  redirectUrl = '/'
+                }
+              } else {
+                redirectUrl = '/'
+              }
+            } catch (error) {
+              redirectUrl = '/'
+            }
+            break
+          default:
+            redirectUrl = '/'
+        }
+        
+        window.location.href = redirectUrl
       }
     } catch (error) {
       setMessage('Something went wrong. Please try again.')
@@ -48,7 +85,7 @@ export default function SignInForm() {
       const result = await signIn('email', {
         email,
         redirect: false,
-        callbackUrl: '/admin/dashboard'
+        callbackUrl: '/'
       })
 
       if (result?.error) {
@@ -97,15 +134,15 @@ export default function SignInForm() {
       {authMethod === 'credentials' && (
         <form onSubmit={handleCredentialsSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="email">Email address</Label>
+            <Label htmlFor="username">Username (Email or Mobile Number)</Label>
             <div className="relative">
-              <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+              <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input
-                id="email"
-                type="email"
-                placeholder="Enter your email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                id="username"
+                type="text"
+                placeholder="Enter email (admin@localhub.com) or mobile (+91 98765 43210)"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 className="pl-10"
                 required
               />
@@ -195,6 +232,8 @@ export default function SignInForm() {
             <p><strong>Admin:</strong> admin@localhub.com / admin123</p>
             <p><strong>Editor:</strong> editor@localhub.com / editor123</p>
             <p><strong>Dealer:</strong> dealer@localhub.com / dealer123</p>
+            <p className="text-blue-600"><strong>Shop Owner:</strong> +91 98765 43210 / shop123</p>
+            <p className="text-blue-600"><strong>New Shop Owners:</strong> Register at /shop/register</p>
           </div>
         </div>
       )}

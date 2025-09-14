@@ -7,6 +7,7 @@ import { config } from '@/lib/config'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { hasPermission, getAdminNavItems, type UserRole } from '@/lib/roles'
+import { createPrismaClient } from '@/lib/db-connection'
 import Link from 'next/link'
 import { 
   Plus, 
@@ -22,7 +23,8 @@ import {
   ShoppingBag,
   Newspaper,
   Globe,
-  Phone
+  Phone,
+  Store
 } from 'lucide-react'
 
 // Force dynamic rendering to avoid build-time database calls
@@ -45,6 +47,21 @@ export default async function AdminDashboard() {
     getClicks(),
     getUsers()
   ])
+
+  // Get shop statistics
+  const prisma = createPrismaClient()
+  let shopStats = { total: 0, pending: 0 }
+  try {
+    const [totalShops, pendingShops] = await Promise.all([
+      prisma.shop.count(),
+      prisma.shop.count({ where: { status: 'pending' } })
+    ])
+    shopStats = { total: totalShops, pending: pendingShops }
+  } catch (error) {
+    console.error('Error fetching shop stats:', error)
+  } finally {
+    await prisma.$disconnect()
+  }
 
   const totalClicks = clickStats.length
   const totalDeals = deals.length
@@ -244,6 +261,37 @@ export default async function AdminDashboard() {
         </Card>
         )}
 
+        {/* Shops Management - Only show if user can manage shops */}
+        {hasPermission(userRole, 'canManageShops') && (
+          <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Store className="h-5 w-5" />
+              Shops Management
+            </CardTitle>
+            <CardDescription>Manage shop registrations and activations</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-sm">Total Shops</span>
+              <Badge variant="secondary">{shopStats.total}</Badge>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm">Pending Activation</span>
+              <Badge variant="secondary">{shopStats.pending}</Badge>
+            </div>
+            <div className="flex gap-2">
+              <Link href="/admin/shops" className="flex-1">
+                <Button className="w-full" size="sm">
+                  <Eye className="h-4 w-4 mr-2" />
+                  Manage Shops
+                </Button>
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
+        )}
+
         {/* Contact Management - Only show if user can manage settings */}
         {hasPermission(userRole, 'canManageSettings') && (
           <Card>
@@ -422,7 +470,7 @@ export default async function AdminDashboard() {
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Badge variant="outline">{deal.platform.name}</Badge>
+                  <Badge variant="outline">{deal.platform?.name || deal.shop?.name || 'Local Shop'}</Badge>
                   <Link href={`/admin/deals/${deal.id}/edit`}>
                     <Button variant="ghost" size="sm">
                       <Edit className="h-4 w-4" />

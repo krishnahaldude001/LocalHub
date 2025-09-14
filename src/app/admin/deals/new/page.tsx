@@ -37,7 +37,7 @@ export default function NewDealPage() {
           <CardHeader>
             <CardTitle>Deal Information</CardTitle>
             <CardDescription>
-              Fill in the details for your new deal. All fields are required.
+              Create either an affiliate marketing deal or a local shop deal. Required fields depend on the deal type you select.
             </CardDescription>
           </CardHeader>
           <CardContent>

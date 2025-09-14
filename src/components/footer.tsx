@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { Separator } from '@/components/ui/separator'
 import { config } from '@/lib/config'
 import SocialMediaButtons from '@/components/social-media-buttons'
+import WhatsAppContact from '@/components/whatsapp-contact'
 
 export default function Footer() {
   const currentYear = new Date().getFullYear()
@@ -85,6 +86,12 @@ export default function Footer() {
                 Follow us on social media for the latest updates and community news.
               </p>
               <SocialMediaButtons variant="outline" size="sm" />
+              <WhatsAppContact 
+                message="Hi Krishna, I came from your website"
+                variant="outline"
+                size="sm"
+                className="w-full"
+              />
               <div className="text-xs text-muted-foreground">
                 <p>📧 {config.contact.email}</p>
                 <p>📱 {config.contact.phone}</p>

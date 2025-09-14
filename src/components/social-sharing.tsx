@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Share2, MessageCircle, Instagram, Facebook, Twitter, Mail } from 'lucide-react'
 
@@ -11,6 +12,14 @@ interface SocialSharingProps {
 }
 
 export default function SocialSharing({ title, url, description, className = '' }: SocialSharingProps) {
+  const [isClient, setIsClient] = useState(false)
+  const [hasNativeShare, setHasNativeShare] = useState(false)
+
+  useEffect(() => {
+    setIsClient(true)
+    setHasNativeShare(typeof navigator !== 'undefined' && 'share' in navigator)
+  }, [])
+
   const encodedTitle = encodeURIComponent(title)
   const encodedUrl = encodeURIComponent(url)
   const encodedDescription = encodeURIComponent(description || '')
@@ -52,12 +61,29 @@ export default function SocialSharing({ title, url, description, className = '' 
     }
   }
 
+  // Don't render until client-side to avoid hydration mismatch
+  if (!isClient) {
+    return (
+      <div className={`flex items-center gap-2 ${className}`}>
+        <span className="text-sm font-medium text-muted-foreground mr-2">Share:</span>
+        <div className="flex gap-2">
+          <div className="w-8 h-8 bg-gray-200 rounded animate-pulse"></div>
+          <div className="w-8 h-8 bg-gray-200 rounded animate-pulse"></div>
+          <div className="w-8 h-8 bg-gray-200 rounded animate-pulse"></div>
+          <div className="w-8 h-8 bg-gray-200 rounded animate-pulse"></div>
+          <div className="w-8 h-8 bg-gray-200 rounded animate-pulse"></div>
+          <div className="w-8 h-8 bg-gray-200 rounded animate-pulse"></div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className={`flex items-center gap-2 ${className}`}>
       <span className="text-sm font-medium text-muted-foreground mr-2">Share:</span>
       
       {/* Native Share Button (for mobile) */}
-      {typeof navigator !== 'undefined' && 'share' in navigator && (
+      {hasNativeShare && (
         <Button
           variant="outline"
           size="sm"

@@ -1,12 +1,32 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/db'
+import { createPrismaClient } from '@/lib/db-connection'
 
 export async function POST(request: NextRequest) {
+  const prisma = createPrismaClient();
   try {
     const body = await request.json()
     
-    // Validate required fields
-    const requiredFields = ['title', 'description', 'price', 'platformId', 'affiliateUrl', 'area']
+    // Validate required fields based on deal type
+    const requiredFields = ['title', 'description', 'price', 'area']
+    
+    // Check if it's a platform deal or shop deal
+    const isPlatformDeal = body.platformId && body.affiliateUrl
+    const isShopDeal = body.shopId && body.category
+    
+    if (!isPlatformDeal && !isShopDeal) {
+      return NextResponse.json(
+        { error: 'Deal must be either a platform deal (with platformId and affiliateUrl) or shop deal (with shopId and category)' },
+        { status: 400 }
+      )
+    }
+    
+    // Add conditional required fields
+    if (isPlatformDeal) {
+      requiredFields.push('platformId', 'affiliateUrl')
+    } else if (isShopDeal) {
+      requiredFields.push('shopId', 'category')
+    }
+    
     for (const field of requiredFields) {
       if (!body[field]) {
         return NextResponse.json(
@@ -36,14 +56,18 @@ export async function POST(request: NextRequest) {
         description: body.description,
         price: body.price,
         salePrice: body.salePrice,
-        platformId: body.platformId,
-        affiliateUrl: body.affiliateUrl,
+        platformId: body.platformId || null,
+        shopId: body.shopId || null,
+        affiliateUrl: body.affiliateUrl || null,
         rating: body.rating,
         cod: body.cod,
         image: body.image,
         youtubeUrl: body.youtubeUrl,
         gallery: body.gallery,
         area: body.area,
+        category: body.category || null,
+        discountType: body.discountType || null,
+        isActive: body.isActive !== undefined ? body.isActive : true,
         publishedAt: new Date()
       }
     })
@@ -55,26 +79,55 @@ export async function POST(request: NextRequest) {
       { error: 'Internal server error' },
       { status: 500 }
     )
+  } finally {
+    await prisma.$disconnect();
   }
 }
 
 export async function GET() {
+  const prisma = createPrismaClient();
   try {
     const deals = await prisma.deal.findMany({
       orderBy: { createdAt: 'desc' },
       include: {
+        platform: {
+          select: {
+            id: true,
+            name: true,
+            color: true
+          }
+        },
+        shop: {
+          select: {
+            id: true,
+            name: true,
+            isVerified: true,
+            rating: true
+          }
+        },
         _count: {
-          select: { clicks: true }
+          select: { 
+            clicks: true,
+            orders: true
+          }
         }
       }
     })
 
-    return NextResponse.json(deals)
+    // Transform the data to include clickCount for backward compatibility
+    const transformedDeals = deals.map(deal => ({
+      ...deal,
+      clickCount: deal._count.clicks
+    }));
+
+    return NextResponse.json(transformedDeals)
   } catch (error) {
     console.error('Error fetching deals:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
     )
+  } finally {
+    await prisma.$disconnect();
   }
 }

@@ -23,8 +23,8 @@ export default function ContactPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [contactInfo, setContactInfo] = useState({
     email: 'admin@localhub.space',
-    phone: '+91-9876543210',
-    whatsapp: '+91-9876543210',
+    phone: '+91-8169321761',
+    whatsapp: '+91-8169321761',
     address: 'Mumbai, Maharashtra, India',
     businessHours: '9:00 AM - 6:00 PM (Mon-Fri), 10:00 AM - 4:00 PM (Sat)'
   })
@@ -82,13 +82,13 @@ export default function ContactPage() {
 
   const handleWhatsAppClick = () => {
     const message = encodeURIComponent(
-      `Hi! I want to contact ${config.appName}.\n\n` +
+      `Hi Krishna, I came from your website.\n\n` +
       `Name: ${formData.firstName} ${formData.lastName}\n` +
       `Email: ${formData.email}\n` +
       `Phone: ${formData.phone}\n\n` +
       `Message: ${formData.message || 'I have a general inquiry.'}`
     )
-    const whatsappUrl = `https://wa.me/${contactInfo.whatsapp.replace(/[^0-9]/g, '')}?text=${message}`
+    const whatsappUrl = `https://wa.me/918169321761?text=${message}`
     window.open(whatsappUrl, '_blank')
   }
 
@@ -112,7 +112,7 @@ export default function ContactPage() {
       title: 'WhatsApp',
       value: contactInfo.whatsapp,
       description: 'Chat with us instantly',
-      link: `https://wa.me/${contactInfo.whatsapp.replace(/[^0-9]/g, '')}?text=Hi! I want to know more about ${config.appName} services.`,
+      link: `https://wa.me/918169321761?text=Hi%20Krishna%2C%20I%20came%20from%20your%20website`,
       isWhatsApp: true
     },
     {

@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge'
 import { MapPin } from 'lucide-react'
 import { useState } from 'react'
 import Link from 'next/link'
+import { usePathname, useSearchParams } from 'next/navigation'
 
 interface ClickableAreaBadgesProps {
   areas: string[]
@@ -12,6 +13,22 @@ interface ClickableAreaBadgesProps {
 
 export default function ClickableAreaBadges({ areas, selectedArea }: ClickableAreaBadgesProps) {
   const [hoveredArea, setHoveredArea] = useState<string | null>(null)
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+
+  const createAreaUrl = (area: string) => {
+    const params = new URLSearchParams(searchParams.toString())
+    if (area === selectedArea) {
+      // If clicking the same area, remove the filter
+      params.delete('area')
+    } else {
+      // Set the new area filter
+      params.set('area', area)
+    }
+    
+    const queryString = params.toString()
+    return queryString ? `${pathname}?${queryString}` : pathname
+  }
 
   return (
     <div className="flex flex-wrap justify-center gap-3 mb-8">
@@ -20,7 +37,7 @@ export default function ClickableAreaBadges({ areas, selectedArea }: ClickableAr
         const isHovered = hoveredArea === area
         
         return (
-          <Link key={area} href={`/news?area=${encodeURIComponent(area)}`}>
+          <Link key={area} href={createAreaUrl(area)}>
             <Badge 
               className={`text-sm px-4 py-2 transition-all duration-200 cursor-pointer shadow-md border-0 font-medium ${
                 isSelected 

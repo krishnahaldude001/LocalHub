@@ -57,13 +57,20 @@ export default function Header() {
     { href: '/', label: 'Home' },
     { href: '/news', label: 'News' },
     { href: '/deals', label: 'Deals' },
+    { href: '/shop/register', label: 'Register Shop' },
     { href: '/election', label: 'Election' },
   ]
   
-  // Add admin dashboard only if user has admin access
-  const navigationItems = canAccessAdmin(userRole) 
-    ? [...baseNavigationItems, { href: '/admin/dashboard', label: 'Dashboard' }]
-    : baseNavigationItems
+  // Add navigation based on user role
+  let navigationItems = baseNavigationItems;
+  
+  if (canAccessAdmin(userRole)) {
+    // Admin users get admin dashboard
+    navigationItems = [...baseNavigationItems, { href: '/admin/dashboard', label: 'Dashboard' }];
+  } else if (session?.user?.email) {
+    // Regular users (including shop owners) get shop management
+    navigationItems = [...baseNavigationItems, { href: '/my-shops', label: 'My Shop' }];
+  }
 
   if (!mounted) {
     return (

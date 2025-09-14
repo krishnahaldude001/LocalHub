@@ -23,18 +23,33 @@ export const metadata: Metadata = {
 }
 
 export default async function AnalyticsPage() {
-  // Fetch analytics data using simple connection
-  const [
-    deals,
-    clicks,
-    posts,
-    users
-  ] = await Promise.all([
-    getDeals(100),
-    getClicks(),
-    getPosts(100),
-    getUsers()
-  ])
+  // Fetch analytics data using simple connection with error handling
+  let deals = []
+  let clicks = []
+  let posts = []
+  let users = []
+
+  try {
+    const [
+      dealsData,
+      clicksData,
+      postsData,
+      usersData
+    ] = await Promise.all([
+      getDeals(100).catch(() => []),
+      getClicks().catch(() => []),
+      getPosts(100).catch(() => []),
+      getUsers().catch(() => [])
+    ])
+    
+    deals = dealsData || []
+    clicks = clicksData || []
+    posts = postsData || []
+    users = usersData || []
+  } catch (error) {
+    console.error('Error fetching analytics data:', error)
+    // Use empty arrays as fallback
+  }
 
   // Calculate basic metrics
   const totalClicks = clicks.length
@@ -45,7 +60,8 @@ export default async function AnalyticsPage() {
 
   // Platform performance
   const platformData = deals.reduce((acc, deal) => {
-    const platform = deal.platform.name
+    // Handle deals without platforms (local shop deals)
+    const platform = deal.platform?.name || 'Local Shops'
     const clicks = deal._count?.clicks || 0
     if (!acc[platform]) {
       acc[platform] = { platform, clicks: 0, deals: 0 }
@@ -144,18 +160,24 @@ export default async function AnalyticsPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {topPlatforms.map((platform, index) => (
-                <div key={platform.platform} className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <Badge variant="outline">{index + 1}</Badge>
-                    <span className="font-medium">{platform.platform}</span>
+              {topPlatforms.length > 0 ? (
+                topPlatforms.map((platform, index) => (
+                  <div key={platform.platform} className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <Badge variant="outline">{index + 1}</Badge>
+                      <span className="font-medium">{platform.platform}</span>
+                    </div>
+                    <div className="text-right">
+                      <div className="font-bold">{platform.clicks}</div>
+                      <div className="text-xs text-muted-foreground">{platform.deals} deals</div>
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <div className="font-bold">{platform.clicks}</div>
-                    <div className="text-xs text-muted-foreground">{platform.deals} deals</div>
-                  </div>
-                </div>
-              ))}
+                ))
+              ) : (
+                <p className="text-center text-muted-foreground py-4">
+                  No platform data available
+                </p>
+              )}
             </div>
           </CardContent>
         </Card>

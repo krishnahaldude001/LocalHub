@@ -1,168 +1,415 @@
-import { Metadata } from 'next'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { config, getAreasForLocation } from '@/lib/config'
-import { formatDate, formatPrice, getDiscountPercentage, getPlatformColor, getPlatformName } from '@/lib/utils'
-import { prisma, parseGallery } from '@/lib/db'
-import Link from 'next/link'
-import Image from 'next/image'
-import { ArrowRight, Star, MapPin, Calendar } from 'lucide-react'
+'use client';
 
-// Force dynamic rendering to avoid build-time database calls
-export const dynamic = 'force-dynamic'
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import OrderForm from '@/components/order-form';
+import DealCard from '@/components/deal-card';
 
-export const metadata: Metadata = {
-  title: `Best Deals | ${config.appName}`,
-  description: `Discover amazing deals and offers from top platforms in ${config.defaultLocation.areas.join(', ')} areas.`,
+const categories = [
+  'Electronics',
+  'Clothing & Fashion',
+  'Food & Beverages',
+  'Home & Garden',
+  'Health & Beauty',
+  'Sports & Fitness',
+  'Books & Stationery',
+  'Automotive',
+  'Jewelry & Accessories',
+  'Toys & Games',
+  'Other'
+];
+
+const discountTypes = [
+  'Percentage Off',
+  'Fixed Amount Off',
+  'Buy One Get One',
+  'Buy Two Get One',
+  'Bundle Deal',
+  'Clearance Sale',
+  'Flash Sale',
+  'Other'
+];
+
+const areas = [
+  'Govandi',
+  'Shivaji Nagar',
+  'Baiganwadi',
+  'Mankhurd',
+  'Chembur',
+  'Kurla',
+  'Ghatkopar',
+  'Vikhroli',
+  'Bhandup',
+  'Mulund',
+  'Other'
+];
+
+interface Deal {
+  id: string;
+  title: string;
+  description: string;
+  price: number;
+  salePrice: number;
+  category: string;
+  discountType: string;
+  image: string;
+  area: string;
+  viewCount: number;
+  createdAt: string;
+  shop: {
+    id: string;
+    name: string;
+    slug: string;
+    area: string;
+    phone: string;
+    whatsapp: string;
+    isVerified: boolean;
+    rating: number;
+  };
+  _count: {
+    orders: number;
+  };
 }
 
-export default async function DealsPage() {
-  // Fetch deals from database
-  const dbDeals = await prisma.deal.findMany({
-    include: { platform: true },
-    orderBy: { publishedAt: 'desc' }
-  })
+export default function DealsPage() {
+  const [deals, setDeals] = useState<Deal[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [filters, setFilters] = useState({
+    area: '',
+    category: '',
+    discountType: '',
+    minPrice: '',
+    maxPrice: '',
+    search: ''
+  });
+  const [sortBy, setSortBy] = useState('newest');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [selectedDeal, setSelectedDeal] = useState<Deal | null>(null);
 
-  // Transform database deals to match the expected format
-  const deals = dbDeals.map(deal => ({
-    ...deal,
-    gallery: parseGallery(deal.gallery)
-  }))
+  useEffect(() => {
+    fetchDeals();
+  }, [filters, sortBy, currentPage]);
 
-  const areas = getAreasForLocation()
+  const fetchDeals = async () => {
+    setLoading(true);
+    try {
+      const params = new URLSearchParams();
+      
+      if (filters.area) params.append('area', filters.area);
+      if (filters.category) params.append('category', filters.category);
+      if (filters.discountType) params.append('discountType', filters.discountType);
+      if (filters.minPrice) params.append('minPrice', filters.minPrice);
+      if (filters.maxPrice) params.append('maxPrice', filters.maxPrice);
+      if (filters.search) params.append('search', filters.search);
+      
+      params.append('page', currentPage.toString());
+      params.append('limit', '12');
+
+      const response = await fetch(`/api/deals?${params}`);
+      if (response.ok) {
+        const data = await response.json();
+        setDeals(data.deals);
+        setTotalPages(data.pagination.pages);
+      }
+    } catch (error) {
+      console.error('Error fetching deals:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleFilterChange = (key: string, value: string) => {
+    setFilters(prev => ({
+      ...prev,
+      [key]: value
+    }));
+    setCurrentPage(1); // Reset to first page when filters change
+  };
+
+  const clearFilters = () => {
+    setFilters({
+      area: '',
+      category: '',
+      discountType: '',
+      minPrice: '',
+      maxPrice: '',
+      search: ''
+    });
+    setCurrentPage(1);
+  };
+
+  const calculateDiscount = (price: number, salePrice: number) => {
+    return Math.round(((price - salePrice) / price) * 100);
+  };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      {/* Enhanced Header */}
-      <div className="relative text-center mb-16 overflow-hidden">
-        {/* Enhanced Gradient Background */}
-        <div className="absolute inset-0 bg-gradient-warm opacity-5 rounded-3xl -m-4"></div>
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-background to-secondary/10 rounded-3xl -m-4"></div>
-        
-        {/* Content */}
-        <div className="relative z-10 py-12">
-          <h1 className="text-4xl md:text-5xl font-bold mb-6">
-            Best <span className="text-gradient-primary">Deals</span>
-          </h1>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-8 leading-relaxed">
-            Discover amazing deals and offers from Amazon, Flipkart, and Meesho in {areas.join(', ')} areas.
-          </p>
-          
-          {/* Enhanced Area Badges */}
-          <div className="flex flex-wrap justify-center gap-3">
-            {areas.map((area, index) => (
-              <Badge 
-                key={area} 
-                className="text-sm px-4 py-2 hover:scale-105 transition-transform duration-200 cursor-default shadow-sm bg-gradient-primary text-white border-0"
-                style={{ animationDelay: `${index * 100}ms` }}
-              >
-                <MapPin className="h-3 w-3 mr-2" />
-                {area}
-              </Badge>
-            ))}
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <div className="bg-white shadow">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="text-center">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              Local Deals & Offers
+            </h1>
+            <p className="text-gray-600">
+              Discover amazing deals from local shops in your area
+            </p>
           </div>
         </div>
       </div>
 
-      {/* Deals Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {deals.map((deal) => (
-          <Card key={deal.id} className="group overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-border/50 hover:border-primary/20">
-            <div className="relative h-48 overflow-hidden">
-              <Image
-                src={deal.image || '/placeholder-product.svg'}
-                alt={deal.title}
-                fill
-                className="object-cover group-hover:scale-105 transition-transform duration-300"
-              />
-              {/* Gradient overlay for better text readability */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              
-              <div className="absolute top-3 left-3">
-                <Badge className="bg-gradient-primary text-white shadow-lg border-0">
-                  {deal.area}
-                </Badge>
+      {/* Quick Location Selector */}
+      <div className="bg-white border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <span className="text-sm font-medium text-gray-700">Quick Filter:</span>
+              <div className="flex flex-wrap gap-2">
+                {areas.map((area) => (
+                  <button
+                    key={area}
+                    onClick={() => handleFilterChange('area', area === filters.area ? '' : area)}
+                    className={`px-3 py-1 text-xs rounded-full transition-colors ${
+                      filters.area === area
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    {area}
+                  </button>
+                ))}
               </div>
-              {deal.salePrice && (
-                <div className="absolute top-3 right-3">
-                  <Badge className="bg-gradient-to-r from-red-500 to-red-600 text-white shadow-lg animate-pulse">
-                    -{getDiscountPercentage(deal.price, deal.salePrice)}%
-                  </Badge>
-                </div>
-              )}
             </div>
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between mb-2">
-                <Badge className={deal.platform.color}>
-                  {deal.platform.name}
-                </Badge>
-                <div className="flex items-center gap-1">
-                  <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                  <span className="text-sm font-medium">{deal.rating}</span>
-                </div>
-              </div>
-              <CardTitle className="line-clamp-2 text-lg">
-                <Link href={`/deals/${deal.slug}`} className="hover:text-primary transition-colors">
-                  {deal.title}
-                </Link>
-              </CardTitle>
-              <CardDescription className="line-clamp-2">
-                {deal.description}
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="pt-0">
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    {deal.salePrice ? (
-                      <>
-                        <span className="text-2xl font-bold text-primary">
-                          {formatPrice(deal.salePrice)}
-                        </span>
-                        <span className="text-sm text-muted-foreground line-through">
-                          {formatPrice(deal.price)}
-                        </span>
-                      </>
-                    ) : (
-                      <span className="text-2xl font-bold text-primary">
-                        {formatPrice(deal.price)}
-                      </span>
-                    )}
-                  </div>
-                  {deal.cod && (
-                    <Badge variant="outline" className="text-xs">
-                      COD
-                    </Badge>
-                  )}
-                </div>
-                <Link href={`/deals/${deal.slug}`}>
-                  <Button className="w-full">
-                    View Deal
-                    <ArrowRight className="h-4 w-4 ml-1" />
-                  </Button>
-                </Link>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      {/* CTA Section */}
-      <div className="mt-16 text-center">
-        <div className="bg-gradient-to-r from-primary/10 to-secondary/10 rounded-2xl p-8">
-          <h2 className="text-2xl font-bold mb-4">Never Miss a Deal</h2>
-          <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
-            Get notified about the best deals and offers in your area.
-          </p>
-          <Link href="/contact">
-            <Button size="lg">
-              Get Notifications
-              <ArrowRight className="h-4 w-4 ml-1" />
-            </Button>
-          </Link>
+            {filters.area && (
+              <button
+                onClick={() => handleFilterChange('area', '')}
+                className="text-xs text-gray-500 hover:text-gray-700"
+              >
+                Clear Location
+              </button>
+            )}
+          </div>
         </div>
       </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+          {/* Filters Sidebar */}
+          <div className="lg:col-span-1">
+            <div className="bg-white rounded-lg shadow p-6 sticky top-8">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-lg font-semibold text-gray-900">Filters</h2>
+                <button
+                  onClick={clearFilters}
+                  className="text-sm text-blue-600 hover:text-blue-500"
+                >
+                  Clear All
+                </button>
+              </div>
+
+              {/* Search */}
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Search
+                </label>
+                <input
+                  type="text"
+                  value={filters.search}
+                  onChange={(e) => handleFilterChange('search', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Search deals..."
+                />
+              </div>
+
+              {/* Area Filter */}
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Area
+                </label>
+                <select
+                  value={filters.area}
+                  onChange={(e) => handleFilterChange('area', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="">All Areas</option>
+                  {areas.map(area => (
+                    <option key={area} value={area}>{area}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Category Filter */}
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Category
+                </label>
+                <select
+                  value={filters.category}
+                  onChange={(e) => handleFilterChange('category', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="">All Categories</option>
+                  {categories.map(category => (
+                    <option key={category} value={category}>{category}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Discount Type Filter */}
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Discount Type
+                </label>
+                <select
+                  value={filters.discountType}
+                  onChange={(e) => handleFilterChange('discountType', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="">All Types</option>
+                  {discountTypes.map(type => (
+                    <option key={type} value={type}>{type}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Price Range */}
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Price Range (₹)
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  <input
+                    type="number"
+                    placeholder="Min"
+                    value={filters.minPrice}
+                    onChange={(e) => handleFilterChange('minPrice', e.target.value)}
+                    className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                  <input
+                    type="number"
+                    placeholder="Max"
+                    value={filters.maxPrice}
+                    onChange={(e) => handleFilterChange('maxPrice', e.target.value)}
+                    className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+              </div>
+
+              {/* Sort By */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Sort By
+                </label>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="newest">Newest First</option>
+                  <option value="price_low">Price: Low to High</option>
+                  <option value="price_high">Price: High to Low</option>
+                  <option value="discount">Highest Discount</option>
+                  <option value="popular">Most Popular</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          {/* Deals Grid */}
+          <div className="lg:col-span-3">
+            {loading ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                {[...Array(6)].map((_, i) => (
+                  <div key={i} className="bg-white rounded-lg shadow animate-pulse">
+                    <div className="h-48 bg-gray-300 rounded-t-lg"></div>
+                    <div className="p-6">
+                      <div className="h-4 bg-gray-300 rounded mb-2"></div>
+                      <div className="h-4 bg-gray-300 rounded mb-4"></div>
+                      <div className="h-6 bg-gray-300 rounded"></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : deals.length === 0 ? (
+              <div className="text-center py-12">
+                <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                </svg>
+                <h3 className="mt-2 text-sm font-medium text-gray-900">No deals found</h3>
+                <p className="mt-1 text-sm text-gray-500">Try adjusting your filters or search terms.</p>
+              </div>
+            ) : (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                  {deals.map((deal) => (
+                    <DealCard key={deal.id} deal={deal as any} />
+                  ))}
+                </div>
+
+                {/* Pagination */}
+                {totalPages > 1 && (
+                  <div className="mt-8 flex justify-center">
+                    <nav className="flex space-x-2">
+                      <button
+                        onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                        disabled={currentPage === 1}
+                        className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        Previous
+                      </button>
+                      
+                      {[...Array(totalPages)].map((_, i) => (
+                        <button
+                          key={i + 1}
+                          onClick={() => setCurrentPage(i + 1)}
+                          className={`px-3 py-2 text-sm font-medium rounded-md ${
+                            currentPage === i + 1
+                              ? 'bg-blue-600 text-white'
+                              : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
+                          }`}
+                        >
+                          {i + 1}
+                        </button>
+                      ))}
+                      
+                      <button
+                        onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                        disabled={currentPage === totalPages}
+                        className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        Next
+                      </button>
+                    </nav>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Order Modal */}
+      {selectedDeal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-lg font-semibold text-gray-900">Place Order</h2>
+                <button
+                  onClick={() => setSelectedDeal(null)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              <OrderForm deal={selectedDeal} onOrderPlaced={() => setSelectedDeal(null)} />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
-  )
+  );
 }
