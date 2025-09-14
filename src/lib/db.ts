@@ -7,8 +7,8 @@ const globalForPrisma = globalThis as unknown as {
 // Create Prisma client with better error handling and connection pooling
 function createPrismaClient() {
   try {
-    // Use direct connection URL to avoid prepared statement conflicts
-    const databaseUrl = process.env.DATABASE_URL?.replace(':6543/', ':5432/') || process.env.DATABASE_URL
+    // Use pooled DATABASE_URL for production (Vercel), direct for local development
+    const databaseUrl = process.env.DATABASE_URL
     
     return new PrismaClient({
       log: ['error'],

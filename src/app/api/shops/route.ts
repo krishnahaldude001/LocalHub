@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createPrismaClient } from '@/lib/db-connection';
 import bcrypt from 'bcryptjs';
 
+export const runtime = 'nodejs';
+
 export async function POST(request: NextRequest) {
   const prisma = createPrismaClient();
   try {

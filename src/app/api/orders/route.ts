@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createPrismaClient } from '@/lib/db-connection'
 import { v4 as uuidv4 } from 'uuid'
 
+export const runtime = 'nodejs'
+
 export async function POST(request: NextRequest) {
   try {
     const prisma = createPrismaClient()

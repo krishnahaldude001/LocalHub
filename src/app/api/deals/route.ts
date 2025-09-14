@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createPrismaClient } from '@/lib/db-connection';
 
+export const runtime = 'nodejs';
+
 export async function POST(request: NextRequest) {
   const prisma = createPrismaClient();
   try {
