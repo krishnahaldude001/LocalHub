@@ -45,6 +45,7 @@ export default async function AnalyticsPage() {
 
   // Platform performance
   const platformData = deals.reduce((acc, deal) => {
+    if (!deal.platform) return acc // Skip deals without platform
     const platform = deal.platform.name
     const clicks = deal._count?.clicks || 0
     if (!acc[platform]) {

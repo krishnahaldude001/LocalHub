@@ -25,6 +25,17 @@ export default async function EditDealPage({ params }: EditDealPageProps) {
     notFound()
   }
 
+  // Transform deal to ensure required fields are not null
+  const transformedDeal = {
+    ...deal,
+    platformId: deal.platformId || '',
+    affiliateUrl: deal.affiliateUrl || '',
+    description: deal.description || '',
+    image: deal.image || '',
+    youtubeUrl: deal.youtubeUrl || '',
+    platform: deal.platform || { id: '', name: '', color: '', slug: '', description: null, isActive: true, createdAt: new Date(), updatedAt: new Date() }
+  }
+
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Header */}
@@ -51,7 +62,7 @@ export default async function EditDealPage({ params }: EditDealPageProps) {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <EditDealForm deal={deal} />
+            <EditDealForm deal={transformedDeal} />
           </CardContent>
         </Card>
       </div>

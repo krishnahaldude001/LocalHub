@@ -24,10 +24,10 @@ export const metadata: Metadata = {
 
 export default async function AnalyticsPage() {
   // Fetch analytics data using simple connection with error handling
-  let deals = []
-  let clicks = []
-  let posts = []
-  let users = []
+  let deals: any[] = []
+  let clicks: any[] = []
+  let posts: any[] = []
+  let users: any[] = []
 
   try {
     const [

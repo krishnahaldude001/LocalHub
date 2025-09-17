@@ -25,6 +25,14 @@ export default async function EditNewsPage({ params }: EditNewsPageProps) {
     notFound()
   }
 
+  // Transform post to ensure date fields are strings
+  const transformedPost = {
+    ...post,
+    publishedAt: post.publishedAt.toISOString(),
+    createdAt: post.createdAt.toISOString(),
+    updatedAt: post.updatedAt.toISOString()
+  }
+
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Header */}
@@ -50,7 +58,7 @@ export default async function EditNewsPage({ params }: EditNewsPageProps) {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <EditNewsForm post={post} />
+          <EditNewsForm post={transformedPost} />
         </CardContent>
       </Card>
     </div>

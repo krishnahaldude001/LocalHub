@@ -1,5 +1,12 @@
 import { prisma } from './db'
 
+// Simple database query function using Prisma (for backward compatibility)
+export async function query(text: string, params?: any[]) {
+  // Use Prisma's raw query functionality with the singleton client
+  const result = await prisma.$queryRawUnsafe(text, ...(params || []))
+  return result as any[]
+}
+
 // Get deals using proper Prisma queries
 export async function getDeals(limit = 6, area?: string) {
   const deals = await prisma.deal.findMany({
@@ -64,6 +71,13 @@ export async function getPostCount() {
 // Get platforms
 export async function getPlatforms() {
   return await prisma.platform.findMany({
+    include: {
+      _count: {
+        select: {
+          deals: true
+        }
+      }
+    },
     orderBy: {
       name: 'asc'
     }

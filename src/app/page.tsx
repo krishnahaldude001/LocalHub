@@ -37,6 +37,20 @@ export default async function HomePage({
   // Transform database deals to match the expected format
   const deals = dbDeals.map(deal => ({
     ...deal,
+    description: deal.description || undefined,
+    salePrice: deal.salePrice || undefined,
+    image: deal.image || undefined,
+    affiliateUrl: deal.affiliateUrl || undefined,
+    youtubeUrl: deal.youtubeUrl || undefined,
+    platform: deal.platform ? {
+      name: deal.platform.name
+    } : null,
+    shop: deal.shop ? {
+      name: deal.shop.name,
+      slug: deal.shop.slug,
+      phone: deal.shop.phone || undefined,
+      whatsapp: deal.shop.whatsapp || undefined
+    } : null,
     gallery: deal.gallery ? (typeof deal.gallery === 'string' && deal.gallery.startsWith('[') ? JSON.parse(deal.gallery) : [deal.gallery]) : []
   }))
 

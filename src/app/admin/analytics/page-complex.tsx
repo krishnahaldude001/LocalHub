@@ -46,6 +46,7 @@ export default async function AnalyticsPage() {
 
   // Platform performance
   const platformData = deals.reduce((acc, deal) => {
+    if (!deal.platform) return acc // Skip deals without platform
     const platform = deal.platform.name
     const clicks = deal._count?.clicks || 0
     if (!acc[platform]) {
@@ -64,7 +65,7 @@ export default async function AnalyticsPage() {
 
   // Area performance
   const areaData = deals.reduce((acc, deal) => {
-    const area = deal.area
+    const area = deal.area || deal.shop?.area || 'Unknown'
     const clicks = deal._count?.clicks || 0
     if (!acc[area]) {
       acc[area] = { area, clicks: 0, deals: 0 }
@@ -192,8 +193,8 @@ export default async function AnalyticsPage() {
         topDeals={deals.map(deal => ({
           id: deal.id,
           title: deal.title,
-          platform: deal.platform.name,
-          area: deal.area,
+          platform: deal.platform?.name || 'Unknown',
+          area: deal.area || deal.shop?.area || 'Unknown',
           rating: deal.rating,
           _count: deal._count
         }))}
