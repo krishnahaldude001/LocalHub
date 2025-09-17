@@ -7,8 +7,17 @@ const globalForPrisma = globalThis as unknown as {
 // Create Prisma client with better error handling and connection pooling
 function createPrismaClient() {
   try {
-    // Use pooled DATABASE_URL for production (Vercel), direct for local development
-    const databaseUrl = process.env.DATABASE_URL
+    // For Supabase, use DATABASE_URL (pooler) for better connectivity
+    let databaseUrl = process.env.DATABASE_URL || process.env.DIRECT_URL
+    
+    // Add connection parameters to prevent prepared statement conflicts
+    if (databaseUrl?.includes('postgresql://')) {
+      const url = new URL(databaseUrl)
+      url.searchParams.set('prepared_statements', 'false')
+      url.searchParams.set('connection_limit', '1')
+      url.searchParams.set('pool_timeout', '20')
+      databaseUrl = url.toString()
+    }
     
     return new PrismaClient({
       log: ['error'],
