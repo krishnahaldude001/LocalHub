@@ -57,7 +57,10 @@ if (process.env.NODE_ENV !== 'production') {
 const gracefulShutdown = async () => {
   try {
     await prisma.$disconnect()
-    console.log('Prisma client disconnected gracefully')
+    // Only log in production or when explicitly debugging
+    if (process.env.NODE_ENV === 'production' || process.env.DEBUG_PRISMA === 'true') {
+      console.log('Prisma client disconnected gracefully')
+    }
   } catch (error) {
     console.error('Error during Prisma disconnect:', error)
   }

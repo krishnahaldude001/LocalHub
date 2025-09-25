@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { Plus, FileText, BarChart3, Download, Calendar, User, Tag, Eye } from 'lucide-react'
 import ElectionActions from '@/components/election-actions'
 import ElectionFilter from '@/components/election-filter'
-import { createPrismaClient } from '@/lib/db-connection'
+import { prisma } from '@/lib/db'
 
 export const metadata: Metadata = {
   title: 'Election Management | Admin Dashboard',
@@ -16,7 +16,6 @@ export const metadata: Metadata = {
 // Load articles from database
 async function getElectionArticles() {
   try {
-    const prisma = createPrismaClient()
     console.log('Fetching election articles from database...')
     
     const rows = await prisma.election.findMany({
@@ -49,7 +48,6 @@ async function getElectionArticles() {
 // Load categories from database
 async function getCategories() {
   try {
-    const prisma = createPrismaClient()
     const articles = await prisma.election.findMany({
       select: { category: true }
     })
