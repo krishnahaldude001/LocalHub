@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge'
 import Link from 'next/link'
 import { Plus, FileText, BarChart3, Download, Calendar, User, Tag, Eye } from 'lucide-react'
 import ElectionActions from '@/components/election-actions'
+import ElectionFilter from '@/components/election-filter'
 import { createPrismaClient } from '@/lib/db-connection'
 
 export const metadata: Metadata = {
@@ -36,15 +37,29 @@ async function getElectionArticles() {
   }))
 }
 
-const categories = [
-  { name: 'Demographics', count: 3 },
-  { name: 'Constituency', count: 2 },
-  { name: 'Trends', count: 4 },
-  { name: 'Issues', count: 2 }
-]
+// Load categories from database
+async function getCategories() {
+  const prisma = createPrismaClient()
+  const articles = await prisma.election.findMany({
+    select: { category: true }
+  })
+  
+  // Count articles by category
+  const categoryCounts = articles.reduce((acc, article) => {
+    acc[article.category] = (acc[article.category] || 0) + 1
+    return acc
+  }, {} as Record<string, number>)
+  
+  return Object.entries(categoryCounts).map(([name, count]) => ({
+    name: name.charAt(0).toUpperCase() + name.slice(1),
+    count,
+    slug: name.toLowerCase()
+  }))
+}
 
 export default async function ElectionManagementPage() {
   const electionArticles = await getElectionArticles()
+  const categories = await getCategories()
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -70,8 +85,8 @@ export default async function ElectionManagementPage() {
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">12</div>
-            <p className="text-xs text-muted-foreground">+2 from last month</p>
+            <div className="text-2xl font-bold">{electionArticles.length}</div>
+            <p className="text-xs text-muted-foreground">All articles in database</p>
           </CardContent>
         </Card>
         
@@ -81,8 +96,8 @@ export default async function ElectionManagementPage() {
             <Eye className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">8</div>
-            <p className="text-xs text-muted-foreground">67% of total</p>
+            <div className="text-2xl font-bold">{electionArticles.filter(a => a.status === 'published').length}</div>
+            <p className="text-xs text-muted-foreground">{Math.round((electionArticles.filter(a => a.status === 'published').length / electionArticles.length) * 100) || 0}% of total</p>
           </CardContent>
         </Card>
         
@@ -92,8 +107,8 @@ export default async function ElectionManagementPage() {
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">4</div>
-            <p className="text-xs text-muted-foreground">33% of total</p>
+            <div className="text-2xl font-bold">{electionArticles.filter(a => a.status === 'draft').length}</div>
+            <p className="text-xs text-muted-foreground">{Math.round((electionArticles.filter(a => a.status === 'draft').length / electionArticles.length) * 100) || 0}% of total</p>
           </CardContent>
         </Card>
         
@@ -103,31 +118,17 @@ export default async function ElectionManagementPage() {
             <BarChart3 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">4,080</div>
-            <p className="text-xs text-muted-foreground">+12% from last month</p>
+            <div className="text-2xl font-bold">{electionArticles.reduce((sum, article) => sum + article.views, 0)}</div>
+            <p className="text-xs text-muted-foreground">Across all articles</p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Categories */}
-      <div className="mb-8">
-        <h2 className="text-2xl font-bold mb-4">Article Categories</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {categories.map((category, index) => (
-            <Card key={index} className="hover:shadow-md transition-shadow cursor-pointer">
-              <CardHeader>
-                <CardTitle className="text-lg">{category.name}</CardTitle>
-                <CardDescription>{category.count} articles</CardDescription>
-              </CardHeader>
-            </Card>
-          ))}
-        </div>
-      </div>
 
-      {/* Articles List */}
+      {/* Articles List with Filtering */}
       <div className="mb-8">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-bold">Recent Articles</h2>
+          <h2 className="text-2xl font-bold">All Articles</h2>
           <div className="flex gap-2">
             <Button variant="outline" size="sm">
               <Download className="h-4 w-4 mr-2" />
@@ -140,78 +141,7 @@ export default async function ElectionManagementPage() {
           </div>
         </div>
         
-        <div className="space-y-4">
-          {electionArticles.map((article) => (
-            <Card key={article.id} className="hover:shadow-md transition-shadow">
-              <CardContent className="p-6">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Badge variant={article.status === 'published' ? 'default' : 'secondary'}>
-                        {article.status}
-                      </Badge>
-                      <Badge variant="outline">{article.category}</Badge>
-                      <Badge variant="secondary">{article.area}</Badge>
-                    </div>
-                    
-                    <h3 className="text-xl font-semibold mb-2">{article.title}</h3>
-                    <p className="text-muted-foreground mb-4">{article.excerpt}</p>
-                    
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
-                      <div className="flex items-center gap-1">
-                        <User className="h-4 w-4" />
-                        <span>{article.author}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Calendar className="h-4 w-4" />
-                        <span>{new Date(article.publishedAt).toLocaleDateString()}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Eye className="h-4 w-4" />
-                        <span>{article.views} views</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <FileText className="h-4 w-4" />
-                        <span>{article.readTime}</span>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center gap-2 mb-4">
-                      {article.hasPDF && (
-                        <Badge variant="outline" className="text-xs">
-                          <Download className="h-3 w-3 mr-1" />
-                          PDF
-                        </Badge>
-                      )}
-                      {article.hasData && (
-                        <Badge variant="outline" className="text-xs">
-                          <BarChart3 className="h-3 w-3 mr-1" />
-                          Data
-                        </Badge>
-                      )}
-                    </div>
-                    
-                    <div className="flex flex-wrap gap-1">
-                      {article.tags.map((tag, index) => (
-                        <Badge key={index} variant="secondary" className="text-xs">
-                          <Tag className="h-3 w-3 mr-1" />
-                          {tag}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                  
-                  <ElectionActions
-                    articleId={article.id}
-                    articleTitle={article.title}
-                    canEdit={true}
-                    canDelete={true}
-                  />
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+        <ElectionFilter articles={electionArticles} categories={categories} />
       </div>
 
       {/* Quick Actions */}

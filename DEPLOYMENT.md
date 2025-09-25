@@ -13,7 +13,7 @@ Add these to your Vercel project settings:
 ```
 DATABASE_URL=postgresql://postgres.hhcovjrhmmyogyzwucoq:Krishna@123@aws-1-ap-south-1.pooler.supabase.com:6543/postgres?sslmode=disable&pgbouncer=true&connect_timeout=30
 DIRECT_URL=postgresql://postgres:Krishna@123@db.hhcovjrhmmyogyzwucoq:5432/postgres?sslmode=disable&connect_timeout=30
-NEXTAUTH_URL=https://your-app-name.vercel.app
+NEXTAUTH_URL=https://localhub.space
 NEXTAUTH_SECRET=your-nextauth-secret-key-here
 NODE_ENV=production
 ```

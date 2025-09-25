@@ -24,7 +24,7 @@ const customEmailProvider = {
   type: 'email' as const,
   name: 'Email',
   server: '',
-  from: 'noreply@localhub.com',
+  from: 'noreply@localhub.space',
   maxAge: 24 * 60 * 60, // 24 hours
   async sendVerificationRequest({ identifier: email, url, provider }: { identifier: string; url: string; provider: any }) {
     console.log('\n🔗 Magic Link for:', email)
@@ -111,7 +111,7 @@ export const authOptions: NextAuthOptions = {
               pass: process.env.EMAIL_SERVER_PASSWORD,
             },
           } : undefined,
-          from: process.env.EMAIL_FROM || 'noreply@localhub.com',
+          from: process.env.EMAIL_FROM || 'noreply@localhub.space',
         }),
   ],
   callbacks: {

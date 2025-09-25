@@ -140,7 +140,7 @@ export default function SignInForm() {
               <Input
                 id="username"
                 type="text"
-                placeholder="Enter email (admin@localhub.com) or mobile (+91 98765 43210)"
+                placeholder="Enter email (admin@localhub.space) or mobile (+91 98765 43210)"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 className="pl-10"
@@ -229,9 +229,9 @@ export default function SignInForm() {
         <div className="mt-6 p-4 bg-muted rounded-lg">
           <h3 className="text-sm font-medium mb-2">Demo Credentials (Development Only):</h3>
           <div className="text-xs space-y-1 text-muted-foreground">
-            <p><strong>Admin:</strong> admin@localhub.com / admin123</p>
-            <p><strong>Editor:</strong> editor@localhub.com / editor123</p>
-            <p><strong>Dealer:</strong> dealer@localhub.com / dealer123</p>
+            <p><strong>Admin:</strong> admin@localhub.space / admin123</p>
+            <p><strong>Editor:</strong> editor@localhub.space / editor123</p>
+            <p><strong>Dealer:</strong> dealer@localhub.space / dealer123</p>
             <p className="text-blue-600"><strong>Shop Owner:</strong> +91 98765 43210 / shop123</p>
             <p className="text-blue-600"><strong>New Shop Owners:</strong> Register at /shop/register</p>
           </div>

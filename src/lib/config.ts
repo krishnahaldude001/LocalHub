@@ -3,7 +3,7 @@ export const config = {
   // App branding
   appName: 'LocalHub', // Changed from GovandiHub to be more global
   appDescription: 'Your local hub for news, deals, and community updates',
-  appUrl: 'https://localhub.com',
+  appUrl: 'https://localhub.space',
   
   // Default location (can be overridden)
   defaultLocation: {
