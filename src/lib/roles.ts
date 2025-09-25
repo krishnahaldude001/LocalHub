@@ -2,6 +2,14 @@
 
 export type UserRole = 'admin' | 'editor' | 'dealer' | 'news_writer' | 'user'
 
+export type Permission = 
+  | 'canManageUsers' | 'canReadUsers' | 'canCreateUsers' | 'canEditUsers' | 'canDeleteUsers'
+  | 'canManageDeals' | 'canReadDeals' | 'canCreateDeals' | 'canEditDeals' | 'canDeleteDeals'
+  | 'canManageNews' | 'canReadNews' | 'canCreateNews' | 'canEditNews' | 'canDeleteNews'
+  | 'canManagePages' | 'canManagePlatforms' | 'canManageShops'
+  | 'canReadShops' | 'canCreateShops' | 'canEditShops' | 'canDeleteShops'
+  | 'canViewAnalytics' | 'canManageSettings'
+
 export const ROLES = {
   ADMIN: 'admin' as const,
   EDITOR: 'editor' as const,
@@ -13,51 +21,131 @@ export const ROLES = {
 export const ROLE_PERMISSIONS = {
   [ROLES.ADMIN]: {
     canManageUsers: true,
+    canReadUsers: true,
+    canCreateUsers: true,
+    canEditUsers: true,
+    canDeleteUsers: true,
     canManageDeals: true,
+    canReadDeals: true,
+    canCreateDeals: true,
+    canEditDeals: true,
+    canDeleteDeals: true,
     canManageNews: true,
+    canReadNews: true,
+    canCreateNews: true,
+    canEditNews: true,
+    canDeleteNews: true,
     canManagePages: true,
     canManagePlatforms: true,
     canManageShops: true,
+    canReadShops: true,
+    canCreateShops: true,
+    canEditShops: true,
+    canDeleteShops: true,
     canViewAnalytics: true,
     canManageSettings: true,
   },
   [ROLES.EDITOR]: {
     canManageUsers: false,
+    canReadUsers: true,
+    canCreateUsers: false,
+    canEditUsers: false,
+    canDeleteUsers: false,
     canManageDeals: true,
+    canReadDeals: true,
+    canCreateDeals: true,
+    canEditDeals: true,
+    canDeleteDeals: false,
     canManageNews: true,
+    canReadNews: true,
+    canCreateNews: true,
+    canEditNews: true,
+    canDeleteNews: false,
     canManagePages: false,
-    canManagePlatforms: true,
-    canManageShops: true,
+    canManagePlatforms: false,
+    canManageShops: false,
+    canReadShops: true,
+    canCreateShops: false,
+    canEditShops: false,
+    canDeleteShops: false,
     canViewAnalytics: true,
     canManageSettings: false,
   },
   [ROLES.DEALER]: {
     canManageUsers: false,
+    canReadUsers: false,
+    canCreateUsers: false,
+    canEditUsers: false,
+    canDeleteUsers: false,
     canManageDeals: true,
+    canReadDeals: true,
+    canCreateDeals: true,
+    canEditDeals: true,
+    canDeleteDeals: true,
     canManageNews: false,
+    canReadNews: false,
+    canCreateNews: false,
+    canEditNews: false,
+    canDeleteNews: false,
     canManagePages: false,
     canManagePlatforms: false,
-    canManageShops: false,
+    canManageShops: true,
+    canReadShops: true,
+    canCreateShops: true,
+    canEditShops: true,
+    canDeleteShops: true,
     canViewAnalytics: true,
     canManageSettings: false,
   },
   [ROLES.NEWS_WRITER]: {
     canManageUsers: false,
+    canReadUsers: false,
+    canCreateUsers: false,
+    canEditUsers: false,
+    canDeleteUsers: false,
     canManageDeals: false,
+    canReadDeals: false,
+    canCreateDeals: false,
+    canEditDeals: false,
+    canDeleteDeals: false,
     canManageNews: true,
+    canReadNews: true,
+    canCreateNews: true,
+    canEditNews: true,
+    canDeleteNews: false,
     canManagePages: false,
     canManagePlatforms: false,
     canManageShops: false,
-    canViewAnalytics: true,
+    canReadShops: false,
+    canCreateShops: false,
+    canEditShops: false,
+    canDeleteShops: false,
+    canViewAnalytics: false,
     canManageSettings: false,
   },
   [ROLES.USER]: {
     canManageUsers: false,
+    canReadUsers: false,
+    canCreateUsers: false,
+    canEditUsers: false,
+    canDeleteUsers: false,
     canManageDeals: false,
+    canReadDeals: true,
+    canCreateDeals: false,
+    canEditDeals: false,
+    canDeleteDeals: false,
     canManageNews: false,
+    canReadNews: true,
+    canCreateNews: false,
+    canEditNews: false,
+    canDeleteNews: false,
     canManagePages: false,
     canManagePlatforms: false,
     canManageShops: false,
+    canReadShops: true,
+    canCreateShops: false,
+    canEditShops: false,
+    canDeleteShops: false,
     canViewAnalytics: false,
     canManageSettings: false,
   },
@@ -80,7 +168,7 @@ export const ROLE_DESCRIPTIONS = {
 } as const
 
 // Helper functions
-export function hasPermission(role: UserRole, permission: keyof typeof ROLE_PERMISSIONS[UserRole]): boolean {
+export function hasPermission(role: UserRole, permission: Permission): boolean {
   return ROLE_PERMISSIONS[role]?.[permission] ?? false
 }
 
@@ -106,6 +194,7 @@ export function getAdminNavItems(userRole: UserRole) {
   
   if (hasPermission(userRole, 'canManageNews')) {
     items.push({ href: '/admin/news', label: 'News', icon: 'Newspaper' })
+    items.push({ href: '/admin/election', label: 'Election', icon: 'BarChart3' })
   }
   
   if (hasPermission(userRole, 'canManagePages')) {

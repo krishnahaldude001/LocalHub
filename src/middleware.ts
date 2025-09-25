@@ -25,7 +25,7 @@ export default withAuth(
       for (const [route, allowedRoles] of Object.entries(adminRoutes)) {
         if (pathname.startsWith(route)) {
           if (!allowedRoles.includes(userRole)) {
-            return NextResponse.redirect(new URL("/unauthorized", req.url))
+            return NextResponse.redirect(new URL("/admin/unauthorized", req.url))
           }
           break
         }

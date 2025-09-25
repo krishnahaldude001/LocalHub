@@ -144,13 +144,13 @@ export default async function AdminDashboard() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Coverage Areas</CardTitle>
-            <MapPin className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Election Articles</CardTitle>
+            <BarChart3 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{config.defaultLocation.areas.length}</div>
+            <div className="text-2xl font-bold">12</div>
             <p className="text-xs text-muted-foreground">
-              Active areas
+              Published articles
             </p>
           </CardContent>
         </Card>
@@ -221,6 +221,42 @@ export default async function AdminDashboard() {
                 </Button>
               </Link>
               <Link href="/admin/news/new">
+                <Button variant="outline" size="sm">
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
+        )}
+
+        {/* Election Management - Only show if user can manage news (election articles) */}
+        {hasPermission(userRole, 'canManageNews') && (
+          <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <BarChart3 className="h-5 w-5" />
+              Election Management
+            </CardTitle>
+            <CardDescription>Manage election articles and analytics</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-sm">Total Articles</span>
+              <Badge variant="secondary">12</Badge>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm">Categories</span>
+              <Badge variant="secondary">4</Badge>
+            </div>
+            <div className="flex gap-2">
+              <Link href="/admin/election" className="flex-1">
+                <Button className="w-full" size="sm">
+                  <Eye className="h-4 w-4 mr-2" />
+                  View All
+                </Button>
+              </Link>
+              <Link href="/admin/election/new">
                 <Button variant="outline" size="sm">
                   <Plus className="h-4 w-4" />
                 </Button>

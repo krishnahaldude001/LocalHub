@@ -1,44 +1,40 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
   provider  = "postgresql"
-  url       = env("DATABASE_URL")  // pooler
-  directUrl = env("DIRECT_URL")    // direct
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model Deal {
-  id           String   @id @default(cuid())
-  slug         String   @unique
+  id           String    @id @default(cuid())
+  slug         String    @unique
   title        String
   description  String?
   price        Float
   salePrice    Float?
   platformId   String?
-  platform     Platform? @relation(fields: [platformId], references: [id])
   shopId       String?
-  shop         Shop?    @relation(fields: [shopId], references: [id])
   affiliateUrl String?
-  rating       Float?   // 0-5
-  cod          Boolean  @default(true) // Default to COD for local shops
+  rating       Float?
+  cod          Boolean   @default(true)
   image        String?
-  gallery      String?  // JSON string of image URLs array
-  youtubeUrl   String?  // YouTube video URL for embedded videos
-  area         String   // Govandi, Shivaji Nagar, Baiganwadi
-  category     String   // electronics, clothing, food, etc.
-  discountType String   // percentage, fixed, buy_one_get_one, etc.
-  isActive     Boolean  @default(true)
-  publishedAt  DateTime @default(now())
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  viewCount    Int      @default(0) // Track page views
-
-  clicks Click[]
-  orders Order[]
+  gallery      String?
+  youtubeUrl   String?
+  area         String
+  category     String
+  discountType String
+  isActive     Boolean   @default(true)
+  publishedAt  DateTime  @default(now())
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  viewCount    Int       @default(0)
+  clicks       Click[]
+  platform     Platform? @relation(fields: [platformId], references: [id])
+  shop         Shop?     @relation(fields: [shopId], references: [id])
+  orders       Order[]
 
   @@map("deals")
 }
@@ -46,13 +42,12 @@ model Deal {
 model Click {
   id        String   @id @default(cuid())
   dealId    String
-  deal      Deal     @relation(fields: [dealId], references: [id])
   createdAt DateTime @default(now())
+  deal      Deal     @relation(fields: [dealId], references: [id])
 
   @@map("clicks")
 }
 
-// NextAuth.js models
 model Account {
   id                String  @id @default(cuid())
   userId            String
@@ -66,8 +61,7 @@ model Account {
   scope             String?
   id_token          String?
   session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
   @@map("accounts")
@@ -89,14 +83,13 @@ model User {
   email         String    @unique
   emailVerified DateTime?
   image         String?
-  role          String    @default("user") // user, admin, editor, dealer, news_writer
-  password      String?   // For credentials authentication
+  role          String    @default("user")
+  password      String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
-
-  accounts Account[]
-  sessions Session[]
-  shops    Shop[]   // Shops owned by this user
+  accounts      Account[]
+  sessions      Session[]
+  shops         Shop[]
 
   @@map("users")
 }
@@ -110,7 +103,6 @@ model VerificationToken {
   @@map("verification_tokens")
 }
 
-// Platform model for dynamic platform management
 model Platform {
   id          String   @id @default(cuid())
   name        String   @unique
@@ -120,14 +112,11 @@ model Platform {
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-
-  // Relations
-  deals Deal[]
+  deals       Deal[]
 
   @@map("platforms")
 }
 
-// News/Posts model for Phase 2
 model Post {
   id          String   @id @default(cuid())
   slug        String   @unique
@@ -135,7 +124,7 @@ model Post {
   excerpt     String
   content     String
   image       String
-  youtubeUrl  String?  // YouTube video URL for embedded videos
+  youtubeUrl  String?
   category    String
   area        String
   author      String
@@ -143,12 +132,11 @@ model Post {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   published   Boolean  @default(true)
-  viewCount   Int      @default(0) // Track page views
+  viewCount   Int      @default(0)
 
   @@map("posts")
 }
 
-// Election model for tracking election-related content
 model Election {
   id          String   @id @default(cuid())
   slug        String   @unique
@@ -156,91 +144,86 @@ model Election {
   description String?
   content     String
   image       String?
-  youtubeUrl  String?  // YouTube video URL for embedded videos
-  category    String   // "candidate", "party", "issue", "poll"
+  youtubeUrl  String?
+  category    String
   area        String
   author      String
   publishedAt DateTime @default(now())
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   published   Boolean  @default(true)
-  viewCount   Int      @default(0) // Track page views
+  viewCount   Int      @default(0)
 
   @@map("elections")
 }
 
-// Universal view tracking model
 model View {
   id        String   @id @default(cuid())
-  type      String   // "deal", "post", "election"
-  contentId String   // ID of the content being viewed
-  userAgent String?  // Browser info
-  ipAddress String?  // IP address (for analytics)
-  referrer  String?  // Where they came from
+  type      String
+  contentId String
+  userAgent String?
+  ipAddress String?
+  referrer  String?
   createdAt DateTime @default(now())
 
   @@map("views")
 }
 
-// Shop model for local businesses
 model Shop {
-  id            String   @id @default(cuid())
-  name          String
-  slug          String   @unique
-  description   String?
-  ownerName     String
-  email         String
-  phone         String
-  whatsapp      String?
-  address       String
-  area          String   // Govandi, Shivaji Nagar, Baiganwadi
-  category      String   // electronics, clothing, food, etc.
-  businessHours String?
-  image         String?
-  status        String   @default("pending") // pending, active, suspended, rejected
-  isVerified    Boolean  @default(false)
-  isActive      Boolean  @default(true)
-  rating        Float?   @default(0) // Average rating from customers
-  totalOrders   Int      @default(0) // Track total orders
-  userId        String?  // Link to user account
-  activationNotes String? // Admin notes for activation/rejection
-  paymentReference String? // Payment reference number
-  activatedAt   DateTime? // When account was activated
-  activatedBy   String?   // Admin who activated the account
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
-  deals Deal[]
-  orders Order[]
-  user   User?   @relation(fields: [userId], references: [id])
+  id               String    @id @default(cuid())
+  name             String
+  slug             String    @unique
+  description      String?
+  ownerName        String
+  email            String
+  phone            String
+  whatsapp         String?
+  address          String
+  area             String
+  category         String
+  businessHours    String?
+  image            String?
+  isVerified       Boolean   @default(false)
+  isActive         Boolean   @default(true)
+  rating           Float?    @default(0)
+  totalOrders      Int       @default(0)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  userId           String?
+  activatedAt      DateTime?
+  activatedBy      String?
+  activationNotes  String?
+  paymentReference String?
+  status           String    @default("pending")
+  deals            Deal[]
+  orders           Order[]
+  user             User?     @relation(fields: [userId], references: [id])
 
   @@map("shops")
 }
 
-// Order model for COD orders
 model Order {
-  id          String   @id @default(cuid())
-  dealId      String
-  deal        Deal     @relation(fields: [dealId], references: [id])
-  shopId      String
-  shop        Shop     @relation(fields: [shopId], references: [id])
-  customerName String
-  customerPhone String
-  customerEmail String?
+  id              String   @id @default(cuid())
+  dealId          String
+  shopId          String
+  customerName    String
+  customerPhone   String
   customerAddress String
+  quantity        Int      @default(1)
+  totalAmount     Float
+  status          String   @default("pending")
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  customerEmail   String?
   customerMessage String?
-  quantity    Int      @default(1)
-  totalAmount Float
-  status      String   @default("pending") // pending, confirmed, delivered, cancelled
-  orderType   String   @default("cod") // cod, online, etc.
-  notes       String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  orderType       String   @default("cod")
+  deal            Deal     @relation(fields: [dealId], references: [id])
+  shop            Shop     @relation(fields: [shopId], references: [id])
 
   @@map("orders")
 }
 
-// Contact information model for dynamic contact management
 model ContactInfo {
   id            String   @id @default(cuid())
   email         String

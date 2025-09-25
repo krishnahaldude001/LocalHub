@@ -3,56 +3,83 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import Link from 'next/link'
-import { ArrowRight, Shield, TrendingUp, Users, FileText, CheckCircle } from 'lucide-react'
+import { ArrowRight, FileText, BarChart3, Users, MapPin, TrendingUp, Download, Eye, Calendar } from 'lucide-react'
 
 export const metadata: Metadata = {
-  title: 'Election Reports - GovandiHub',
-  description: 'Access comprehensive election reports and analysis for Govandi, Shivaji Nagar, and Baiganwadi areas.',
+  title: 'Election Articles & Analytics | LocalHub',
+  description: 'Comprehensive election articles, data analysis, and insights for Govandi, Shivaji Nagar, and Baiganwadi areas.',
 }
 
 export default function ElectionPage() {
-  const benefits = [
+  // Sample election articles - this would come from database
+  const electionArticles = [
     {
-      icon: <Shield className="h-8 w-8 text-primary" />,
-      title: 'Verified Information',
-      description: 'All reports are verified and fact-checked by our team of local experts.'
+      id: '1',
+      title: 'Voter Demographics Analysis 2025',
+      excerpt: 'Comprehensive analysis of voter demographics in Govandi, Shivaji Nagar, and Baiganwadi areas.',
+      category: 'Demographics',
+      area: 'Govandi',
+      author: 'Election Analytics Team',
+      publishedAt: '2025-01-15',
+      readTime: '8 min read',
+      views: 1250,
+      image: '/election/demographics-chart.svg',
+      hasPDF: true,
+      hasData: true,
+      tags: ['Demographics', 'Voting Patterns', 'Age Groups']
     },
     {
-      icon: <TrendingUp className="h-8 w-8 text-primary" />,
-      title: 'Trend Analysis',
-      description: 'Understand voting patterns and demographic trends in your area.'
+      id: '2', 
+      title: 'Constituency Performance Report',
+      excerpt: 'Detailed analysis of constituency performance and candidate profiles.',
+      category: 'Constituency',
+      area: 'Shivaji Nagar',
+      author: 'Political Analyst',
+      publishedAt: '2025-01-12',
+      readTime: '12 min read',
+      views: 980,
+      image: '/election/constituency-map.svg',
+      hasPDF: true,
+      hasData: false,
+      tags: ['Constituency', 'Candidates', 'Performance']
     },
     {
-      icon: <Users className="h-8 w-8 text-primary" />,
-      title: 'Community Insights',
-      description: 'Get insights into how your community votes and what matters most.'
+      id: '3',
+      title: 'Infrastructure Development Impact',
+      excerpt: 'How infrastructure projects are influencing voter decisions in local areas.',
+      category: 'Issues',
+      area: 'Baiganwadi',
+      author: 'Infrastructure Expert',
+      publishedAt: '2025-01-10',
+      readTime: '6 min read',
+      views: 750,
+      image: '/election/infrastructure-chart.svg',
+      hasPDF: false,
+      hasData: true,
+      tags: ['Infrastructure', 'Development', 'Voter Impact']
     },
     {
-      icon: <FileText className="h-8 w-8 text-primary" />,
-      title: 'Detailed Reports',
-      description: 'Comprehensive analysis with charts, graphs, and actionable insights.'
+      id: '4',
+      title: 'Youth Voting Trends 2025',
+      excerpt: 'Analysis of youth participation and voting patterns in upcoming elections.',
+      category: 'Trends',
+      area: 'All Areas',
+      author: 'Youth Analyst',
+      publishedAt: '2025-01-08',
+      readTime: '10 min read',
+      views: 1100,
+      image: '/election/youth-trends.svg',
+      hasPDF: true,
+      hasData: true,
+      tags: ['Youth', 'Trends', 'Participation']
     }
   ]
 
-  const reportTypes = [
-    {
-      title: 'Voter Demographics',
-      description: 'Age, gender, and community-wise voting patterns',
-      price: '₹299',
-      features: ['Population analysis', 'Voting trends', 'Demographic breakdown']
-    },
-    {
-      title: 'Constituency Analysis',
-      description: 'Detailed analysis of your specific constituency',
-      price: '₹499',
-      features: ['Constituency map', 'Candidate profiles', 'Historical data']
-    },
-    {
-      title: 'Election Predictions',
-      description: 'Data-driven predictions and forecasts',
-      price: '₹799',
-      features: ['Prediction models', 'Trend analysis', 'Risk assessment']
-    }
+  const categories = [
+    { name: 'Demographics', count: 3, icon: <Users className="h-5 w-5" /> },
+    { name: 'Constituency', count: 2, icon: <MapPin className="h-5 w-5" /> },
+    { name: 'Trends', count: 4, icon: <TrendingUp className="h-5 w-5" /> },
+    { name: 'Issues', count: 2, icon: <FileText className="h-5 w-5" /> }
   ]
 
   return (
@@ -63,126 +90,181 @@ export default function ElectionPage() {
           Election 2025
         </Badge>
         <h1 className="text-4xl md:text-6xl font-bold mb-6">
-          Make Informed <span className="text-primary">Voting</span> Decisions
+          Election <span className="text-primary">Articles</span> & Analytics
         </h1>
         <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-8">
-          Access comprehensive election reports, demographic analysis, and voting trends for Govandi, Shivaji Nagar, and Baiganwadi areas. 
-          Make your vote count with data-driven insights for the upcoming 2025 elections.
+          Comprehensive election articles, data analysis, and insights for Govandi, Shivaji Nagar, and Baiganwadi areas. 
+          Each article contains unique data, charts, PDFs, and detailed explanations.
         </p>
-        <Link href="/election/reports">
-          <Button size="lg" className="text-lg px-8 py-3">
-            Access Reports
-            <ArrowRight className="h-5 w-5 ml-2" />
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <Link href="#articles">
+            <Button size="lg" className="text-lg px-8 py-3">
+              Browse Articles
+              <ArrowRight className="h-5 w-5 ml-2" />
+            </Button>
+          </Link>
+          <Button variant="outline" size="lg" className="text-lg px-8 py-3">
+            <BarChart3 className="h-5 w-5 mr-2" />
+            View Analytics
           </Button>
-        </Link>
+        </div>
       </div>
 
-      {/* Benefits Section */}
+      {/* Categories */}
       <div className="mb-16">
-        <h2 className="text-3xl font-bold text-center mb-12">Why Choose Our Reports?</h2>
+        <h2 className="text-3xl font-bold text-center mb-12">Article Categories</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {benefits.map((benefit, index) => (
-            <Card key={index} className="text-center hover:shadow-lg transition-shadow">
+          {categories.map((category, index) => (
+            <Card key={index} className="text-center hover:shadow-lg transition-shadow cursor-pointer">
               <CardHeader>
-                <div className="flex justify-center mb-4">
-                  {benefit.icon}
+                <div className="flex justify-center mb-4 text-primary">
+                  {category.icon}
                 </div>
-                <CardTitle className="text-lg">{benefit.title}</CardTitle>
+                <CardTitle className="text-lg">{category.name}</CardTitle>
               </CardHeader>
               <CardContent>
-                <CardDescription className="text-sm">
-                  {benefit.description}
-                </CardDescription>
+                <Badge variant="outline">{category.count} articles</Badge>
               </CardContent>
             </Card>
           ))}
         </div>
       </div>
 
-      {/* Report Types */}
-      <div className="mb-16">
-        <h2 className="text-3xl font-bold text-center mb-12">Available Report Types</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {reportTypes.map((report, index) => (
-            <Card key={index} className="relative hover:shadow-lg transition-shadow">
-              <CardHeader className="text-center pb-4">
-                <CardTitle className="text-xl">{report.title}</CardTitle>
-                <CardDescription className="text-sm">
-                  {report.description}
-                </CardDescription>
-                <div className="text-3xl font-bold text-primary mt-2">
-                  {report.price}
+      {/* Featured Articles */}
+      <div id="articles" className="mb-16">
+        <h2 className="text-3xl font-bold text-center mb-12">Latest Election Articles</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {electionArticles.map((article, index) => (
+            <Card key={article.id} className="hover:shadow-lg transition-shadow">
+              <div className="aspect-video bg-gradient-to-br from-primary/20 to-secondary/20 rounded-t-lg flex items-center justify-center">
+                {article.image ? (
+                  <img 
+                    src={article.image} 
+                    alt={article.title}
+                    className="w-full h-full object-cover rounded-t-lg"
+                  />
+                ) : (
+                  <FileText className="h-12 w-12 text-primary" />
+                )}
+              </div>
+              <CardHeader>
+                <div className="flex items-center gap-2 mb-2">
+                  <Badge variant="outline" className="text-xs">{article.category}</Badge>
+                  <Badge variant="secondary" className="text-xs">{article.area}</Badge>
                 </div>
+                <CardTitle className="text-lg line-clamp-2">{article.title}</CardTitle>
+                <CardDescription className="line-clamp-2">{article.excerpt}</CardDescription>
               </CardHeader>
-              <CardContent className="pt-0">
-                <ul className="space-y-2 mb-6">
-                  {report.features.map((feature, featureIndex) => (
-                    <li key={featureIndex} className="flex items-center gap-2 text-sm">
-                      <CheckCircle className="h-4 w-4 text-green-500" />
-                      {feature}
-                    </li>
+              <CardContent>
+                <div className="flex items-center justify-between text-sm text-muted-foreground mb-4">
+                  <span>{article.author}</span>
+                  <span>{article.readTime}</span>
+                </div>
+                
+                <div className="flex items-center gap-2 mb-4">
+                  <Eye className="h-4 w-4" />
+                  <span className="text-sm">{article.views} views</span>
+                  {article.hasPDF && (
+                    <Badge variant="outline" className="text-xs">
+                      <Download className="h-3 w-3 mr-1" />
+                      PDF
+                    </Badge>
+                  )}
+                  {article.hasData && (
+                    <Badge variant="outline" className="text-xs">
+                      <BarChart3 className="h-3 w-3 mr-1" />
+                      Data
+                    </Badge>
+                  )}
+                </div>
+
+                <div className="flex flex-wrap gap-1 mb-4">
+                  {article.tags.map((tag, tagIndex) => (
+                    <Badge key={tagIndex} variant="secondary" className="text-xs">
+                      {tag}
+                    </Badge>
                   ))}
-                </ul>
-                <Link href={`/election/reports/${report.title.toLowerCase().replace(/\s+/g, '-')}`}>
-                  <Button className="w-full">
-                    Get Report
-                  </Button>
-                </Link>
+                </div>
+
+                <div className="flex gap-2">
+                  <Link href={`/election/articles/${article.id}`} className="flex-1">
+                    <Button className="w-full">
+                      Read Article
+                    </Button>
+                  </Link>
+                  {article.hasPDF && (
+                    <Button variant="outline" size="sm">
+                      <Download className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
               </CardContent>
             </Card>
           ))}
         </div>
       </div>
 
-      {/* Features Section */}
+      {/* Data & Analytics Section */}
       <div className="mb-16">
-        <div className="bg-gradient-to-r from-primary/10 to-secondary/10 rounded-2xl p-8">
-          <h2 className="text-3xl font-bold text-center mb-8">What's Included in Each Report?</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div className="text-center">
-              <div className="bg-primary/20 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                <FileText className="h-8 w-8 text-primary" />
-              </div>
-              <h3 className="font-semibold mb-2">PDF Download</h3>
-              <p className="text-sm text-muted-foreground">
-                High-quality PDF reports you can save and share
+        <h2 className="text-3xl font-bold text-center mb-12">Data & Analytics</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <Card className="text-center">
+            <CardHeader>
+              <BarChart3 className="h-12 w-12 text-primary mx-auto mb-4" />
+              <CardTitle>Interactive Charts</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground mb-4">
+                Dynamic charts and graphs showing voting patterns, demographics, and trends.
               </p>
-            </div>
-            <div className="text-center">
-              <div className="bg-primary/20 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                <TrendingUp className="h-8 w-8 text-primary" />
-              </div>
-              <h3 className="font-semibold mb-2">Interactive Charts</h3>
-              <p className="text-sm text-muted-foreground">
-                Visual data representation for better understanding
+              <Button variant="outline">View Charts</Button>
+            </CardContent>
+          </Card>
+
+          <Card className="text-center">
+            <CardHeader>
+              <Download className="h-12 w-12 text-primary mx-auto mb-4" />
+              <CardTitle>Downloadable Reports</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground mb-4">
+                PDF reports with detailed analysis, charts, and actionable insights.
               </p>
-            </div>
-            <div className="text-center">
-              <div className="bg-primary/20 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                <Shield className="h-8 w-8 text-primary" />
-              </div>
-              <h3 className="font-semibold mb-2">Data Verification</h3>
-              <p className="text-sm text-muted-foreground">
-                All data is verified and sourced from official records
+              <Button variant="outline">Download PDFs</Button>
+            </CardContent>
+          </Card>
+
+          <Card className="text-center">
+            <CardHeader>
+              <TrendingUp className="h-12 w-12 text-primary mx-auto mb-4" />
+              <CardTitle>Real-time Updates</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground mb-4">
+                Live updates on election trends, polling data, and community insights.
               </p>
-            </div>
-          </div>
+              <Button variant="outline">View Updates</Button>
+            </CardContent>
+          </Card>
         </div>
       </div>
 
       {/* CTA Section */}
-      <div className="text-center">
-        <div className="bg-gradient-to-r from-primary/10 to-secondary/10 rounded-2xl p-8">
-          <h2 className="text-2xl font-bold mb-4">Ready to Make an Informed Decision?</h2>
-          <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
-            Get access to comprehensive election reports and make your vote count with data-driven insights.
-          </p>
-          <Link href="/election/reports">
+      <div className="text-center bg-gradient-to-r from-primary/10 to-secondary/10 rounded-2xl p-12">
+        <h2 className="text-3xl font-bold mb-4">Stay Informed with Data-Driven Insights</h2>
+        <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
+          Access comprehensive election articles with unique data, interactive charts, and downloadable reports.
+        </p>
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <Link href="#articles">
             <Button size="lg" className="text-lg px-8 py-3">
-              Access Reports Now
+              Explore All Articles
               <ArrowRight className="h-5 w-5 ml-2" />
             </Button>
           </Link>
+          <Button variant="outline" size="lg" className="text-lg px-8 py-3">
+            Subscribe for Updates
+          </Button>
         </div>
       </div>
     </div>

@@ -6,7 +6,8 @@ import { getUsers } from '@/lib/simple-db'
 import { getRoleLabel, ROLE_DESCRIPTIONS, type UserRole } from '@/lib/roles'
 import { formatDate } from '@/lib/utils'
 import Link from 'next/link'
-import { Plus, Edit, Trash2, Users, UserCheck, UserX, Crown, PenTool, ShoppingBag, Newspaper } from 'lucide-react'
+import { Plus, Users, UserCheck, UserX, Crown, PenTool, ShoppingBag, Newspaper } from 'lucide-react'
+import UserActions from '@/components/user-actions'
 
 // Force dynamic rendering to avoid build-time database calls
 export const dynamic = 'force-dynamic'
@@ -164,20 +165,13 @@ export default async function UserManagementPage() {
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <Link href={`/admin/users/${user.id}/edit`}>
-                      <Button variant="outline" size="sm">
-                        <Edit className="h-4 w-4 mr-2" />
-                        Edit
-                      </Button>
-                    </Link>
-                    {user.role !== 'admin' && (
-                      <Button variant="outline" size="sm" className="text-destructive hover:text-destructive">
-                        <Trash2 className="h-4 w-4 mr-2" />
-                        Delete
-                      </Button>
-                    )}
-                  </div>
+                     <UserActions
+                       userId={user.id}
+                       userName={user.name || 'User'}
+                       userRole={user.role}
+                       canEdit={true}
+                       canDelete={user.role !== 'admin'}
+                     />
                 </div>
               )
             })}
