@@ -15,46 +15,60 @@ export const metadata: Metadata = {
 
 // Load articles from database
 async function getElectionArticles() {
-  const prisma = createPrismaClient()
-  const rows = await prisma.election.findMany({
-    orderBy: { publishedAt: 'desc' }
-  })
-
-  return rows.map((a) => ({
-    id: a.id,
-    title: a.title,
-    excerpt: a.description || '',
-    category: a.category,
-    area: a.area,
-    author: a.author,
-    publishedAt: a.publishedAt.toISOString(),
-    readTime: '—',
-    views: a.viewCount,
-    status: a.published ? 'published' : 'draft',
-    hasPDF: false,
-    hasData: false,
-    tags: [] as string[],
-  }))
+  try {
+    const prisma = createPrismaClient()
+    console.log('Fetching election articles from database...')
+    
+    const rows = await prisma.election.findMany({
+      orderBy: { publishedAt: 'desc' }
+    })
+    
+    console.log(`Found ${rows.length} election articles`)
+    
+    return rows.map((a) => ({
+      id: a.id,
+      title: a.title,
+      excerpt: a.description || '',
+      category: a.category,
+      area: a.area,
+      author: a.author,
+      publishedAt: a.publishedAt.toISOString(),
+      readTime: '—',
+      views: a.viewCount,
+      status: a.published ? 'published' : 'draft',
+      hasPDF: false,
+      hasData: false,
+      tags: [] as string[],
+    }))
+  } catch (error) {
+    console.error('Error fetching election articles:', error)
+    return []
+  }
 }
 
 // Load categories from database
 async function getCategories() {
-  const prisma = createPrismaClient()
-  const articles = await prisma.election.findMany({
-    select: { category: true }
-  })
-  
-  // Count articles by category
-  const categoryCounts = articles.reduce((acc, article) => {
-    acc[article.category] = (acc[article.category] || 0) + 1
-    return acc
-  }, {} as Record<string, number>)
-  
-  return Object.entries(categoryCounts).map(([name, count]) => ({
-    name: name.charAt(0).toUpperCase() + name.slice(1),
-    count,
-    slug: name.toLowerCase()
-  }))
+  try {
+    const prisma = createPrismaClient()
+    const articles = await prisma.election.findMany({
+      select: { category: true }
+    })
+    
+    // Count articles by category
+    const categoryCounts = articles.reduce((acc, article) => {
+      acc[article.category] = (acc[article.category] || 0) + 1
+      return acc
+    }, {} as Record<string, number>)
+    
+    return Object.entries(categoryCounts).map(([name, count]) => ({
+      name: name.charAt(0).toUpperCase() + name.slice(1),
+      count,
+      slug: name.toLowerCase()
+    }))
+  } catch (error) {
+    console.error('Error fetching categories:', error)
+    return []
+  }
 }
 
 export default async function ElectionManagementPage() {

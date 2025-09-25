@@ -3,6 +3,18 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { getDeals, getUsers, getClicks, getPostCount } from '@/lib/simple-db'
+
+// Get election articles count
+async function getElectionCount() {
+  try {
+    const prisma = createPrismaClient()
+    const count = await prisma.election.count()
+    return count
+  } catch (error) {
+    console.error('Error fetching election count:', error)
+    return 0
+  }
+}
 import { config } from '@/lib/config'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
@@ -41,11 +53,12 @@ export default async function AdminDashboard() {
   const userRole = (session?.user as any)?.role as UserRole || 'user'
   
   // Fetch all data for dashboard using simple connection
-  const [deals, newsCount, clickStats, users] = await Promise.all([
+  const [deals, newsCount, clickStats, users, electionCount] = await Promise.all([
     getDeals(100), // Get more deals for dashboard
     getPostCount(),
     getClicks(),
-    getUsers()
+    getUsers(),
+    getElectionCount()
   ])
 
   // Get shop statistics
@@ -148,7 +161,7 @@ export default async function AdminDashboard() {
             <BarChart3 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">12</div>
+            <div className="text-2xl font-bold">{electionCount}</div>
             <p className="text-xs text-muted-foreground">
               Published articles
             </p>
