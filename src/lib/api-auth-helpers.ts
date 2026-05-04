@@ -1,4 +1,5 @@
 import { getServerSession } from 'next-auth'
+import type { Session } from 'next-auth'
 import { NextResponse } from 'next/server'
 import { authOptions } from '@/lib/auth'
 import { createPrismaClient } from '@/lib/db-connection'
@@ -15,8 +16,9 @@ export async function requireSession() {
   return { session, response: null }
 }
 
-export function roleFromSession(session: NonNullable<Awaited<ReturnType<typeof getServerSession>>>) {
-  return ((session.user as { role?: string }).role as UserRole) || 'user'
+export function roleFromSession(session: Session) {
+  const role = session.user?.role
+  return (role as UserRole | undefined) || 'user'
 }
 
 export async function assertShopOwnerBySlug(userId: string, slug: string, role: UserRole) {
