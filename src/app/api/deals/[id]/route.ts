@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import type { Prisma } from '@prisma/client'
 import { createPrismaClient } from '@/lib/db-connection';
 import { requireSession, roleFromSession } from '@/lib/api-auth-helpers'
 import { hasPermission, type UserRole } from '@/lib/roles'
@@ -8,24 +9,30 @@ const SHOP_DEAL_PATCH_FIELDS = [
   'cod', 'isActive', 'image', 'gallery', 'youtubeUrl', 'area',
 ] as const
 
+const dealAuthInclude = {
+  shop: { select: { userId: true as const } },
+} satisfies Prisma.DealInclude
+
+type DealForAuth = Prisma.DealGetPayload<{ include: typeof dealAuthInclude }>
+
 async function assertCanManageDeal(
   prisma: ReturnType<typeof createPrismaClient>,
   userId: string,
   role: UserRole,
   dealId: string
-) {
+): Promise<{ deal: DealForAuth | null; error: NextResponse | null }> {
   const deal = await prisma.deal.findUnique({
     where: { id: dealId },
-    include: { shop: { select: { userId: true } } },
+    include: dealAuthInclude,
   })
   if (!deal) {
-    return { deal: null as typeof deal, error: NextResponse.json({ message: 'Deal not found' }, { status: 404 }) }
+    return { deal: null, error: NextResponse.json({ message: 'Deal not found' }, { status: 404 }) }
   }
   if (hasPermission(role, 'canManageShops')) {
     return { deal, error: null }
   }
   if (!deal.shop?.userId || deal.shop.userId !== userId) {
-    return { deal: null as typeof deal, error: NextResponse.json({ message: 'Forbidden' }, { status: 403 }) }
+    return { deal: null, error: NextResponse.json({ message: 'Forbidden' }, { status: 403 }) }
   }
   return { deal, error: null }
 }
