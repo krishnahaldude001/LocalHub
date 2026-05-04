@@ -172,7 +172,7 @@ export default function DisclosuresPage() {
               <div className="text-center p-4 bg-muted rounded-lg">
                 <h4 className="font-semibold mb-2">Premium Services</h4>
                 <p className="text-sm text-muted-foreground">
-                  Election reports and premium content
+                  Premium listings and partner content
                 </p>
               </div>
             </div>

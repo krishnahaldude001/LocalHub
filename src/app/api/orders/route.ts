@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createPrismaClient } from '@/lib/db-connection'
 import { v4 as uuidv4 } from 'uuid'
+import { requireSession, roleFromSession } from '@/lib/api-auth-helpers'
+import { hasPermission } from '@/lib/roles'
 
 export const runtime = 'nodejs'
 
@@ -95,8 +97,14 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
+  const prisma = createPrismaClient()
   try {
-    const prisma = createPrismaClient()
+    const { session, response } = await requireSession()
+    if (!session) {
+      await prisma.$disconnect()
+      return response!
+    }
+
     const { searchParams } = new URL(request.url)
     const shopId = searchParams.get('shopId')
 
@@ -105,6 +113,19 @@ export async function GET(request: NextRequest) {
         { error: 'shopId parameter is required' },
         { status: 400 }
       )
+    }
+
+    const role = roleFromSession(session as any)
+    const shop = await prisma.shop.findUnique({
+      where: { id: shopId },
+      select: { userId: true },
+    })
+    if (!shop) {
+      return NextResponse.json({ error: 'Shop not found' }, { status: 404 })
+    }
+    const isOwner = shop.userId === session.user!.id
+    if (!isOwner && !hasPermission(role, 'canManageShops')) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
     const orders = await prisma.order.findMany({
@@ -116,8 +137,6 @@ export async function GET(request: NextRequest) {
       orderBy: { createdAt: 'desc' }
     })
 
-    await prisma.$disconnect()
-
     return NextResponse.json({ orders })
 
   } catch (error) {
@@ -126,5 +145,7 @@ export async function GET(request: NextRequest) {
       { error: 'Internal server error' },
       { status: 500 }
     )
+  } finally {
+    await prisma.$disconnect()
   }
 }

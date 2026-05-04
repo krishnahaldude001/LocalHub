@@ -5,6 +5,18 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
+/** Escape HTML when interpolating user-controlled text into `dangerouslySetInnerHTML`. */
+export function escapeHtml(text: string): string {
+  const map: Record<string, string> = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#039;',
+  }
+  return text.replace(/[&<>"']/g, (ch) => map[ch] ?? ch)
+}
+
 export function formatDate(dateString: string | Date) {
   const date = typeof dateString === 'string' ? new Date(dateString) : dateString
   return date.toLocaleDateString('en-US', {

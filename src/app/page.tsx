@@ -135,15 +135,33 @@ export default async function HomePage({
 
         {/* Deals Tab */}
         <TabsContent value="deals" className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {deals.map((deal) => (
-              <DealCard key={deal.id} deal={deal} />
-            ))}
-          </div>
+          {deals.length === 0 ? (
+            <p className="text-center text-muted-foreground py-12 rounded-lg border border-dashed">
+              No deals in this area yet. Try another area above or{' '}
+              <Link href="/deals" className="text-primary underline-offset-4 hover:underline">
+                browse all deals
+              </Link>
+              .
+            </p>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {deals.map((deal) => (
+                <DealCard key={deal.id} deal={deal} />
+              ))}
+            </div>
+          )}
         </TabsContent>
 
         {/* News Tab */}
         <TabsContent value="news" className="space-y-6">
+          {news.length === 0 ? (
+            <p className="text-center text-muted-foreground py-12 rounded-lg border border-dashed">
+              No news for this area yet.{' '}
+              <Link href="/news" className="text-primary underline-offset-4 hover:underline">
+                View all news
+              </Link>
+            </p>
+          ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {news.map((post) => (
               <Card key={post.id} className="group overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-border/50 hover:border-primary/20">
@@ -191,6 +209,7 @@ export default async function HomePage({
               </Card>
             ))}
           </div>
+          )}
         </TabsContent>
 
       </Tabs>

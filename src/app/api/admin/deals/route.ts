@@ -1,9 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createPrismaClient } from '@/lib/db-connection'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth'
+import { hasPermission, type UserRole } from '@/lib/roles'
 
 export async function POST(request: NextRequest) {
   const prisma = createPrismaClient();
   try {
+    const session = await getServerSession(authOptions)
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+    const role = (session.user as { role?: string }).role as UserRole
+    if (!hasPermission(role, 'canCreateDeals')) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+
     const body = await request.json()
     
     // Validate required fields based on deal type
@@ -87,6 +99,15 @@ export async function POST(request: NextRequest) {
 export async function GET() {
   const prisma = createPrismaClient();
   try {
+    const session = await getServerSession(authOptions)
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+    const role = (session.user as { role?: string }).role as UserRole
+    if (!hasPermission(role, 'canReadDeals')) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+
     const deals = await prisma.deal.findMany({
       orderBy: { createdAt: 'desc' },
       include: {

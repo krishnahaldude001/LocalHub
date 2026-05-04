@@ -165,12 +165,12 @@ export default function AboutPage() {
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground mb-4">
-                Stay informed about local elections, community initiatives, and events that shape 
+                Stay informed about local news, community initiatives, and events that shape
                 the future of your neighborhood.
               </p>
-              <Link href="/election">
+              <Link href="/news">
                 <Button variant="outline" className="w-full">
-                  Learn More
+                  Read news
                   <ArrowRight className="h-4 w-4 ml-1" />
                 </Button>
               </Link>

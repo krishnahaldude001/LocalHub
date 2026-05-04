@@ -194,7 +194,6 @@ export function getAdminNavItems(userRole: UserRole) {
   
   if (hasPermission(userRole, 'canManageNews')) {
     items.push({ href: '/admin/news', label: 'News', icon: 'Newspaper' })
-    items.push({ href: '/admin/election', label: 'Election', icon: 'BarChart3' })
   }
   
   if (hasPermission(userRole, 'canManagePages')) {

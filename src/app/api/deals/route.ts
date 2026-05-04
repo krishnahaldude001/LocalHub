@@ -1,11 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createPrismaClient } from '@/lib/db-connection';
+import { requireSession } from '@/lib/api-auth-helpers'
 
 export const runtime = 'nodejs';
 
 export async function POST(request: NextRequest) {
   const prisma = createPrismaClient();
   try {
+    const { session, response } = await requireSession()
+    if (!session) return response!
+
     const body = await request.json();
     const {
       title,
@@ -40,6 +44,10 @@ export async function POST(request: NextRequest) {
         { message: 'Shop not found' },
         { status: 404 }
       );
+    }
+
+    if (shop.userId !== session.user!.id) {
+      return NextResponse.json({ message: 'Forbidden' }, { status: 403 })
     }
 
     // Create slug from deal title

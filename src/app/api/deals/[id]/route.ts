@@ -1,5 +1,34 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createPrismaClient } from '@/lib/db-connection';
+import { requireSession, roleFromSession } from '@/lib/api-auth-helpers'
+import { hasPermission, type UserRole } from '@/lib/roles'
+
+const SHOP_DEAL_PATCH_FIELDS = [
+  'title', 'description', 'price', 'salePrice', 'category', 'discountType',
+  'cod', 'isActive', 'image', 'gallery', 'youtubeUrl', 'area',
+] as const
+
+async function assertCanManageDeal(
+  prisma: ReturnType<typeof createPrismaClient>,
+  userId: string,
+  role: UserRole,
+  dealId: string
+) {
+  const deal = await prisma.deal.findUnique({
+    where: { id: dealId },
+    include: { shop: { select: { userId: true } } },
+  })
+  if (!deal) {
+    return { deal: null as typeof deal, error: NextResponse.json({ message: 'Deal not found' }, { status: 404 }) }
+  }
+  if (hasPermission(role, 'canManageShops')) {
+    return { deal, error: null }
+  }
+  if (!deal.shop?.userId || deal.shop.userId !== userId) {
+    return { deal: null as typeof deal, error: NextResponse.json({ message: 'Forbidden' }, { status: 403 }) }
+  }
+  return { deal, error: null }
+}
 
 export async function GET(
   request: NextRequest,
@@ -7,7 +36,15 @@ export async function GET(
 ) {
   const prisma = createPrismaClient();
   try {
-    const deal = await prisma.deal.findUnique({
+    const { session, response } = await requireSession()
+    if (!session) return response!
+
+    const role = roleFromSession(session as any)
+    const { deal: gateDeal, error } = await assertCanManageDeal(prisma, session.user!.id!, role, params.id)
+    if (error) return error
+    if (!gateDeal) return NextResponse.json({ message: 'Deal not found' }, { status: 404 })
+
+    const full = await prisma.deal.findUnique({
       where: { id: params.id },
       include: {
         shop: {
@@ -30,20 +67,7 @@ export async function GET(
       }
     });
 
-    if (!deal) {
-      return NextResponse.json(
-        { message: 'Deal not found' },
-        { status: 404 }
-      );
-    }
-
-    // Increment view count
-    await prisma.deal.update({
-      where: { id: params.id },
-      data: { viewCount: { increment: 1 } }
-    });
-
-    return NextResponse.json(deal);
+    return NextResponse.json(full);
 
   } catch (error) {
     console.error('Error fetching deal:', error);
@@ -62,11 +86,27 @@ export async function PATCH(
 ) {
   const prisma = createPrismaClient();
   try {
+    const { session, response } = await requireSession()
+    if (!session) return response!
+
+    const role = roleFromSession(session as any)
+    const { error } = await assertCanManageDeal(prisma, session.user!.id!, role, params.id)
+    if (error) return error
+
     const body = await request.json();
-    
+    const data: Record<string, unknown> = {}
+    for (const key of SHOP_DEAL_PATCH_FIELDS) {
+      if (key in body && body[key] !== undefined) {
+        data[key] = body[key]
+      }
+    }
+    if (Object.keys(data).length === 0) {
+      return NextResponse.json({ message: 'No valid fields to update' }, { status: 400 })
+    }
+
     const deal = await prisma.deal.update({
       where: { id: params.id },
-      data: body,
+      data,
       include: {
         shop: true
       }
@@ -91,6 +131,13 @@ export async function DELETE(
 ) {
   const prisma = createPrismaClient();
   try {
+    const { session, response } = await requireSession()
+    if (!session) return response!
+
+    const role = roleFromSession(session as any)
+    const { error } = await assertCanManageDeal(prisma, session.user!.id!, role, params.id)
+    if (error) return error
+
     await prisma.deal.delete({
       where: { id: params.id }
     });

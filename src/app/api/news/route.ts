@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createPrismaClient } from '@/lib/db-connection'
 import { serializeContentWithYouTube } from '@/lib/content-utils'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth'
+import { hasPermission, type UserRole } from '@/lib/roles'
 
 // Function to generate a URL-friendly slug
 function generateSlug(title: string): string {
@@ -15,6 +18,15 @@ function generateSlug(title: string): string {
 export async function POST(request: NextRequest) {
   const prisma = createPrismaClient()
   try {
+    const session = await getServerSession(authOptions)
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+    const role = (session.user as { role?: string }).role as UserRole
+    if (!hasPermission(role, 'canCreateNews')) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+
     const body = await request.json()
     const { title, content, excerpt, image, category, area, author, published, youtubeUrl } = body
 

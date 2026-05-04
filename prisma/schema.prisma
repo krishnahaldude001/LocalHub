@@ -137,26 +137,6 @@ model Post {
   @@map("posts")
 }
 
-model Election {
-  id          String   @id @default(cuid())
-  slug        String   @unique
-  title       String
-  description String?
-  content     String
-  image       String?
-  youtubeUrl  String?
-  category    String
-  area        String
-  author      String
-  publishedAt DateTime @default(now())
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  published   Boolean  @default(true)
-  viewCount   Int      @default(0)
-
-  @@map("elections")
-}
-
 model View {
   id        String   @id @default(cuid())
   type      String

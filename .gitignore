@@ -216,3 +216,7 @@ pnpm-lock.yaml
 # Misc
 *.tgz
 *.tar.gz
+
+# Never commit credential dumps or secrets
+credential.txt
+*credentials*.local.txt

@@ -44,8 +44,8 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/election" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Election
+                <Link href="/shop/register" className="text-muted-foreground hover:text-foreground transition-colors">
+                  Register Shop
                 </Link>
               </li>
             </ul>

@@ -140,7 +140,7 @@ export default function SignInForm() {
               <Input
                 id="username"
                 type="text"
-                placeholder="Enter email (admin@localhub.space) or mobile (+91 98765 43210)"
+                placeholder="Your registered email or mobile number"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 className="pl-10"
@@ -217,9 +217,13 @@ export default function SignInForm() {
       )}
 
       {message && (
-        <p className={`text-sm text-center ${
-          message.includes('Check your email') ? 'text-green-600' : 'text-red-600'
-        }`}>
+        <p
+          role="status"
+          aria-live="polite"
+          className={`text-sm text-center ${
+            message.includes('Check your email') ? 'text-green-600' : 'text-destructive'
+          }`}
+        >
           {message}
         </p>
       )}

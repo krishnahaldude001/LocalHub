@@ -1,7 +1,34 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth'
+import { createPrismaClient } from '@/lib/db-connection'
+import { hasPermission, type UserRole } from '@/lib/roles'
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const role = (session.user as { role?: string }).role as UserRole
+    const canStaffUpload =
+      hasPermission(role, 'canCreateDeals') || hasPermission(role, 'canCreateNews')
+    if (!canStaffUpload) {
+      const prisma = createPrismaClient()
+      try {
+        const ownsShop = await prisma.shop.findFirst({
+          where: { userId: session.user.id },
+          select: { id: true },
+        })
+        if (!ownsShop) {
+          return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+        }
+      } finally {
+        await prisma.$disconnect()
+      }
+    }
+
     const formData = await request.formData()
     const file = formData.get('file') as File
 
@@ -9,9 +36,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 })
     }
 
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
-      return NextResponse.json({ error: 'File must be an image' }, { status: 400 })
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
+    if (!allowedTypes.includes(file.type)) {
+      return NextResponse.json(
+        { error: 'Only JPEG, PNG, GIF, or WebP images are allowed' },
+        { status: 400 }
+      )
     }
 
     // Validate file size (max 5MB)

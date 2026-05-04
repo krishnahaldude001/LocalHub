@@ -4,17 +4,6 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { getDeals, getUsers, getClicks, getPostCount } from '@/lib/simple-db'
 
-// Get election articles count
-async function getElectionCount() {
-  try {
-    const prisma = createPrismaClient()
-    const count = await prisma.election.count()
-    return count
-  } catch (error) {
-    console.error('Error fetching election count:', error)
-    return 0
-  }
-}
 import { config } from '@/lib/config'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
@@ -53,12 +42,11 @@ export default async function AdminDashboard() {
   const userRole = (session?.user as any)?.role as UserRole || 'user'
   
   // Fetch all data for dashboard using simple connection
-  const [deals, newsCount, clickStats, users, electionCount] = await Promise.all([
+  const [deals, newsCount, clickStats, users] = await Promise.all([
     getDeals(100), // Get more deals for dashboard
     getPostCount(),
     getClicks(),
     getUsers(),
-    getElectionCount()
   ])
 
   // Get shop statistics
@@ -115,7 +103,7 @@ export default async function AdminDashboard() {
       </div>
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Deals</CardTitle>
@@ -155,18 +143,6 @@ export default async function AdminDashboard() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Election Articles</CardTitle>
-            <BarChart3 className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{electionCount}</div>
-            <p className="text-xs text-muted-foreground">
-              Published articles
-            </p>
-          </CardContent>
-        </Card>
       </div>
 
       {/* Management Sections */}
@@ -234,42 +210,6 @@ export default async function AdminDashboard() {
                 </Button>
               </Link>
               <Link href="/admin/news/new">
-                <Button variant="outline" size="sm">
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
-        )}
-
-        {/* Election Management - Only show if user can manage news (election articles) */}
-        {hasPermission(userRole, 'canManageNews') && (
-          <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <BarChart3 className="h-5 w-5" />
-              Election Management
-            </CardTitle>
-            <CardDescription>Manage election articles and analytics</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-sm">Total Articles</span>
-              <Badge variant="secondary">12</Badge>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm">Categories</span>
-              <Badge variant="secondary">4</Badge>
-            </div>
-            <div className="flex gap-2">
-              <Link href="/admin/election" className="flex-1">
-                <Button className="w-full" size="sm">
-                  <Eye className="h-4 w-4 mr-2" />
-                  View All
-                </Button>
-              </Link>
-              <Link href="/admin/election/new">
                 <Button variant="outline" size="sm">
                   <Plus className="h-4 w-4" />
                 </Button>

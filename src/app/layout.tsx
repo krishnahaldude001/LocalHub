@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   keywords: `Mumbai, ${config.defaultLocation.areas.join(', ')}, local news, deals, community, Maharashtra`,
   authors: [{ name: `${config.appName} Team` }],
   creator: config.appName,
-  metadataBase: new URL(process.env.NEXTAUTH_URL || 'http://localhost:3001'),
+  metadataBase: new URL(process.env.NEXTAUTH_URL || 'http://localhost:3000'),
   openGraph: {
     type: 'website',
     locale: 'en_IN',

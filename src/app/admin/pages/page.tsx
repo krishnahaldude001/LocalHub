@@ -48,15 +48,6 @@ export default function PagesManagementPage() {
       lastModified: '2024-01-15',
       status: 'Published'
     },
-    {
-      id: 'election',
-      title: 'Election Reports',
-      description: 'Election analysis and reports',
-      path: '/election',
-      icon: Globe,
-      lastModified: '2024-01-15',
-      status: 'Published'
-    }
   ]
 
   return (

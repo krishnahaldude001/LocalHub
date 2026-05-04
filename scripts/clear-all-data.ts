@@ -23,9 +23,6 @@ async function clearAllData() {
     console.log('📰 Clearing news posts...')
     await prisma.post.deleteMany()
     
-    console.log('🗳️ Clearing election data...')
-    await prisma.election.deleteMany()
-    
     console.log('👥 Clearing users (except admin)...')
     await prisma.user.deleteMany({
       where: {

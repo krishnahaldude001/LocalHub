@@ -78,18 +78,24 @@ export const authOptions: NextAuthOptions = {
         }
 
         if (!user || !user.password) {
-          console.log('User not found or no password:', credentials.email)
+          if (process.env.NODE_ENV === 'development') {
+            console.log('Auth: user not found or no password set')
+          }
           return null
         }
 
         const isPasswordValid = await bcrypt.compare(credentials.password, user.password)
 
         if (!isPasswordValid) {
-          console.log('Invalid password for user:', user.email)
+          if (process.env.NODE_ENV === 'development') {
+            console.log('Auth: invalid password')
+          }
           return null
         }
 
-        console.log('Login successful for user:', user.email, 'Role:', user.role)
+        if (process.env.NODE_ENV === 'development') {
+          console.log('Login successful for user:', user.email, 'Role:', user.role)
+        }
 
         return {
           id: user.id,

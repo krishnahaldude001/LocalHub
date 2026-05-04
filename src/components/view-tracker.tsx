@@ -3,7 +3,7 @@
 import { useEffect } from 'react'
 
 interface ViewTrackerProps {
-  type: 'deal' | 'post' | 'election'
+  type: 'deal' | 'post'
   contentId: string
 }
 

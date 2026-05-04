@@ -61,7 +61,6 @@ export const config = {
   features: {
     news: true,
     deals: true,
-    election: true,
     search: true,
     darkMode: true,
     affiliateTracking: true

@@ -45,7 +45,6 @@ export default withAuth(
           pathname === '/' ||
           pathname.startsWith('/news') ||
           pathname.startsWith('/deals') ||
-          pathname.startsWith('/election') ||
           pathname.startsWith('/search') ||
           pathname.startsWith('/api/click') ||
           pathname.startsWith('/api/og') ||

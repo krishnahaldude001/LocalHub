@@ -58,7 +58,7 @@ export default function Header() {
     { href: '/news', label: 'News' },
     { href: '/deals', label: 'Deals' },
     { href: '/shop/register', label: 'Register Shop' },
-    { href: '/election', label: 'Election' },
+    { href: '/contact', label: 'Contact' },
   ]
   
   // Add navigation based on user role

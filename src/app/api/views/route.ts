@@ -39,11 +39,6 @@ export async function POST(request: NextRequest) {
         where: { id: contentId },
         data: { viewCount: { increment: 1 } }
       })
-    } else if (type === 'election') {
-      await prisma.election.update({
-        where: { id: contentId },
-        data: { viewCount: { increment: 1 } }
-      })
     }
 
     console.log(`View tracked: ${type} - ${contentId}`)
