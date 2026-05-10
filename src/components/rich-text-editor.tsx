@@ -156,7 +156,14 @@ export default function RichTextEditor({ content, onChange, placeholder = "Start
       revokeEditorPending()
       editor.chain().focus().setImage({ src: url }).run()
       setIsImageModalOpen(false)
-      toast.success('Image added')
+      if (result.publicUrl === false) {
+        toast.success('Image added (inline only)')
+        toast.warning(
+          'For share previews use a public https image or set BLOB_READ_WRITE_TOKEN on the server and upload again.'
+        )
+      } else {
+        toast.success('Image added')
+      }
     } catch {
       toast.error('Failed to upload image')
     } finally {

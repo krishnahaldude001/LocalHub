@@ -157,7 +157,14 @@ export default function ImageUpload({
       const url = typeof result.url === 'string' ? result.url : ''
       revokePending()
       onChange(url)
-      toast.success('Image uploaded successfully!')
+      if (result.publicUrl === false) {
+        toast.success('Image saved (inline preview only).')
+        toast.warning(
+          'WhatsApp and Facebook previews need a public https:// image. On Vercel, add BLOB_READ_WRITE_TOKEN (Blob store), then upload again — or paste a Drive / image URL instead.'
+        )
+      } else {
+        toast.success('Image uploaded successfully!')
+      }
     } catch (error) {
       console.error('Error uploading image:', error)
       toast.error('Failed to upload image')
@@ -230,7 +237,9 @@ export default function ImageUpload({
               />
               <p className="text-xs text-muted-foreground">
                 Google Drive links are converted for embedding. Use &quot;Anyone with the link&quot;
-                so the image loads for visitors.
+                so the image loads for visitors. Link previews (WhatsApp) need a normal https:// image,
+                not a long <code className="text-[11px]">data:image/…</code> string — use URL mode with
+                Drive or enable Blob uploads (see upload tab).
               </p>
             </div>
           )}
@@ -251,8 +260,10 @@ export default function ImageUpload({
                   />
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  JPG, PNG, GIF, WebP · max 5MB. You get a <strong>local preview</strong> first; nothing is uploaded until
-                  you click <strong>Confirm upload</strong>.
+                  JPG, PNG, GIF, WebP · max 5MB. You get a <strong>local preview</strong> first; nothing is sent until
+                  you click <strong>Confirm upload</strong>. With <strong>BLOB_READ_WRITE_TOKEN</strong> set on Vercel,
+                  files go to Blob storage as a public URL (good for WhatsApp). Without it, the server stores an inline
+                  preview only (fine on the site, not for link previews).
                 </p>
               </div>
 
@@ -350,7 +361,7 @@ export default function ImageUpload({
                     {pendingObjectUrl
                       ? 'Local preview — confirm upload to attach to the article'
                       : value.startsWith('data:')
-                        ? 'Uploaded file'
+                        ? 'Inline image (not used for WhatsApp OG — use Blob token or https URL)'
                         : 'Article featured image crop'}
                   </p>
                 </div>

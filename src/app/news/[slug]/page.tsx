@@ -46,7 +46,10 @@ export async function generateMetadata({ params }: NewsPageProps): Promise<Metad
   const canonicalUrl = `${origin}/news/${post.slug}`
   const rawImage = (post.image || '').trim()
   const imageForOg = rawImage ? normalizeImageUrlForEmbed(rawImage) : ''
-  const ogImage = absoluteUrlForOpenGraph(imageForOg || null, origin)
+  // Posts without a usable featured image (or with data:/blob: only) fall back to a
+  // generated /og preview so WhatsApp/Facebook still render a rich card with image.
+  const fallbackOgImage = `${origin}/og?title=${encodeURIComponent(post.title)}&subtitle=${encodeURIComponent(post.area)}`
+  const ogImage = absoluteUrlForOpenGraph(imageForOg || null, origin) ?? fallbackOgImage
 
   return {
     title: `${post.title} | ${config.appName}`,
@@ -63,24 +66,20 @@ export async function generateMetadata({ params }: NewsPageProps): Promise<Metad
       type: 'article',
       publishedTime: post.publishedAt.toISOString(),
       authors: [post.author],
-      ...(ogImage
-        ? {
-            images: [
-              {
-                url: ogImage,
-                width: 1200,
-                height: 630,
-                alt: post.title,
-              },
-            ],
-          }
-        : {}),
+      images: [
+        {
+          url: ogImage,
+          width: 1200,
+          height: 630,
+          alt: post.title,
+        },
+      ],
     },
     twitter: {
-      card: ogImage ? 'summary_large_image' : 'summary',
+      card: 'summary_large_image',
       title: post.title,
       description,
-      ...(ogImage ? { images: [ogImage] } : {}),
+      images: [ogImage],
     },
   }
 }
