@@ -126,6 +126,8 @@ model Post {
   image       String
   /// Horizontal focal point for featured image (0 = left, 100 = right), used as object-position %.
   imageFocusX Int      @default(50)
+  /// Vertical focal point (0 = top, 100 = bottom).
+  imageFocusY Int      @default(50)
   youtubeUrl  String?
   category    String
   area        String

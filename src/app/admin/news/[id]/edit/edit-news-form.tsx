@@ -23,6 +23,7 @@ interface EditNewsFormProps {
     excerpt?: string | null
     image?: string | null
     imageFocusX?: number | null
+    imageFocusY?: number | null
     youtubeUrl?: string | null
     category: string
     area: string
@@ -43,6 +44,7 @@ export default function EditNewsForm({ post }: EditNewsFormProps) {
     excerpt: post.excerpt || '',
     image: post.image || '',
     imageFocusX: post.imageFocusX ?? 50,
+    imageFocusY: post.imageFocusY ?? 50,
     youtubeUrl: post.youtubeUrl || '',
     category: post.category,
     area: post.area,
@@ -153,6 +155,8 @@ export default function EditNewsForm({ post }: EditNewsFormProps) {
           onChange={(url) => handleInputChange('image', url)}
           focusX={formData.imageFocusX}
           onFocusXChange={(imageFocusX) => handleInputChange('imageFocusX', imageFocusX)}
+          focusY={formData.imageFocusY}
+          onFocusYChange={(imageFocusY) => handleInputChange('imageFocusY', imageFocusY)}
           placeholder="Image URL, Google Drive link, or upload"
         />
       </div>

@@ -7,11 +7,14 @@ export async function PUT(
 ) {
   try {
     const body = await request.json()
-    const { title, content, excerpt, image, imageFocusX, youtubeUrl, category, area, author, published } = body
+    const { title, content, excerpt, image, imageFocusX, imageFocusY, youtubeUrl, category, area, author, published } = body
 
-    const focus = Number(imageFocusX)
+    const focusX = Number(imageFocusX)
     const imageFocusXClamped =
-      Number.isFinite(focus) ? Math.min(100, Math.max(0, Math.round(focus))) : 50
+      Number.isFinite(focusX) ? Math.min(100, Math.max(0, Math.round(focusX))) : 50
+    const focusY = Number(imageFocusY)
+    const imageFocusYClamped =
+      Number.isFinite(focusY) ? Math.min(100, Math.max(0, Math.round(focusY))) : 50
 
     // Validate required fields
     if (!title || !content || !category || !area || !author) {
@@ -35,9 +38,10 @@ export async function PUT(
         author = $8,
         published = $9,
         "imageFocusX" = $10,
+        "imageFocusY" = $11,
         "updatedAt" = NOW()
-      WHERE id = $11
-    `, [title, content, excerpt, image, youtubeUrl, category, area, author, published, imageFocusXClamped, params.id])
+      WHERE id = $12
+    `, [title, content, excerpt, image, youtubeUrl, category, area, author, published, imageFocusXClamped, imageFocusYClamped, params.id])
 
     return NextResponse.json({ success: true })
 

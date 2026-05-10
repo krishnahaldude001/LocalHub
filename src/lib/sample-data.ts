@@ -6,6 +6,7 @@ export interface Post {
   content: string
   image: string
   imageFocusX?: number
+  imageFocusY?: number
   area: string
   publishedAt: string
   author: string

@@ -151,7 +151,7 @@ export default function NewsManagementPage() {
                     alt={article.title}
                     fill
                     className="object-cover"
-                    style={featuredImageStyle(article.imageFocusX)}
+                    style={featuredImageStyle(article.imageFocusX, article.imageFocusY)}
                     unoptimized={typeof article.image === 'string' && article.image.startsWith('data:')}
                   />
                 </div>

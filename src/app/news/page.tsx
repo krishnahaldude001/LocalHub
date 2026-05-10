@@ -107,7 +107,7 @@ export default async function NewsPage({ searchParams }: NewsPageProps) {
                 alt={post.title}
                 fill
                 className="object-cover"
-                style={featuredImageStyle(post.imageFocusX)}
+                style={featuredImageStyle(post.imageFocusX, post.imageFocusY)}
                 unoptimized={post.image.startsWith('data:')}
               />
               <div className="absolute top-3 left-3">

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react'
 import DOMPurify from 'dompurify'
+import { displaySrcForImageUrl } from '@/lib/image-url'
 
 let dataImageSrcHookInstalled = false
 
@@ -36,7 +37,14 @@ export default function RichTextRenderer({ content, className = "" }: RichTextRe
       
       // Set the sanitized HTML content
       contentRef.current.innerHTML = sanitizedContent
-      
+
+      contentRef.current.querySelectorAll('img').forEach((img) => {
+        const src = img.getAttribute('src')
+        if (src) {
+          img.setAttribute('src', displaySrcForImageUrl(src))
+          img.setAttribute('referrerpolicy', 'no-referrer')
+        }
+      })
       // Add styling to make it look good
       const style = document.createElement('style')
       style.textContent = `

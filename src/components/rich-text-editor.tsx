@@ -18,8 +18,9 @@ import {
   Link as LinkIcon,
   Image as ImageIcon,
   Upload,
+  Check,
 } from 'lucide-react'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { toast } from 'sonner'
 import { normalizeImageUrlForEmbed } from '@/lib/image-url'
 
@@ -36,6 +37,8 @@ export default function RichTextEditor({ content, onChange, placeholder = "Start
   const [imageModalTab, setImageModalTab] = useState<'url' | 'upload'>('url')
   const [imageUrlInput, setImageUrlInput] = useState('')
   const [isImageUploading, setIsImageUploading] = useState(false)
+  const [pendingEditorFile, setPendingEditorFile] = useState<File | null>(null)
+  const [pendingEditorObjectUrl, setPendingEditorObjectUrl] = useState<string | null>(null)
   const [isMounted, setIsMounted] = useState(false)
   const imageFileRef = useRef<HTMLInputElement>(null)
 
@@ -70,11 +73,30 @@ export default function RichTextEditor({ content, onChange, placeholder = "Start
     },
   })
 
+  const revokeEditorPending = useCallback(() => {
+    setPendingEditorObjectUrl((prev) => {
+      if (prev) URL.revokeObjectURL(prev)
+      return null
+    })
+    setPendingEditorFile(null)
+    if (imageFileRef.current) imageFileRef.current.value = ''
+  }, [])
+
   const openImageModal = () => {
     setImageUrlInput('')
     setImageModalTab('url')
-    if (imageFileRef.current) imageFileRef.current.value = ''
+    revokeEditorPending()
     setIsImageModalOpen(true)
+  }
+
+  const closeImageModal = () => {
+    revokeEditorPending()
+    setIsImageModalOpen(false)
+  }
+
+  const setImageTab = (t: 'url' | 'upload') => {
+    if (t === 'url') revokeEditorPending()
+    setImageModalTab(t)
   }
 
   const insertImageFromUrl = () => {
@@ -85,14 +107,15 @@ export default function RichTextEditor({ content, onChange, placeholder = "Start
     }
     const src = normalizeImageUrlForEmbed(raw)
     editor.chain().focus().setImage({ src }).run()
+    revokeEditorPending()
     setIsImageModalOpen(false)
     setImageUrlInput('')
     toast.success('Image added')
   }
 
-  const handleEditorImageFile = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleEditorFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
-    if (!file || !editor) return
+    if (!file) return
 
     if (!file.type.startsWith('image/')) {
       toast.error('Please select an image file')
@@ -103,10 +126,21 @@ export default function RichTextEditor({ content, onChange, placeholder = "Start
       return
     }
 
+    setPendingEditorObjectUrl((prev) => {
+      if (prev) URL.revokeObjectURL(prev)
+      return URL.createObjectURL(file)
+    })
+    setPendingEditorFile(file)
+    toast.info('Preview ready — confirm to upload and insert.')
+  }
+
+  const confirmEditorUpload = async () => {
+    if (!pendingEditorFile || !editor) return
+
     setIsImageUploading(true)
     try {
       const formData = new FormData()
-      formData.append('file', file)
+      formData.append('file', pendingEditorFile)
 
       const response = await fetch('/api/upload', {
         method: 'POST',
@@ -119,9 +153,9 @@ export default function RichTextEditor({ content, onChange, placeholder = "Start
       const url = typeof result.url === 'string' ? result.url : ''
       if (!url) throw new Error('No URL returned')
 
+      revokeEditorPending()
       editor.chain().focus().setImage({ src: url }).run()
       setIsImageModalOpen(false)
-      if (imageFileRef.current) imageFileRef.current.value = ''
       toast.success('Image added')
     } catch {
       toast.error('Failed to upload image')
@@ -292,7 +326,7 @@ export default function RichTextEditor({ content, onChange, placeholder = "Start
           <div className="bg-background p-6 rounded-lg shadow-lg max-w-md w-full mx-4 space-y-4">
             <h3 className="text-lg font-semibold">Insert image</h3>
             <p className="text-sm text-muted-foreground">
-              Paste a direct image URL, a Google Drive sharing link, or upload a file. You can add as many images as you need.
+              Paste a URL or pick a file. For uploads you see a <strong>local preview</strong> first, then confirm to upload and insert.
             </p>
             <div className="flex gap-2">
               <Button
@@ -300,7 +334,7 @@ export default function RichTextEditor({ content, onChange, placeholder = "Start
                 variant={imageModalTab === 'url' ? 'default' : 'outline'}
                 size="sm"
                 className="gap-2"
-                onClick={() => setImageModalTab('url')}
+                onClick={() => setImageTab('url')}
               >
                 <LinkIcon className="h-4 w-4" />
                 URL
@@ -310,7 +344,7 @@ export default function RichTextEditor({ content, onChange, placeholder = "Start
                 variant={imageModalTab === 'upload' ? 'default' : 'outline'}
                 size="sm"
                 className="gap-2"
-                onClick={() => setImageModalTab('upload')}
+                onClick={() => setImageTab('upload')}
               >
                 <Upload className="h-4 w-4" />
                 Upload
@@ -321,28 +355,55 @@ export default function RichTextEditor({ content, onChange, placeholder = "Start
                 <Label htmlFor="editor-image-url">Image URL</Label>
                 <Input
                   id="editor-image-url"
-                  type="url"
+                  type="text"
+                  inputMode="url"
                   value={imageUrlInput}
                   onChange={(e) => setImageUrlInput(e.target.value)}
                   placeholder="https://… or Google Drive link"
                 />
               </div>
             ) : (
-              <div className="space-y-2">
-                <Label htmlFor="editor-image-file">Upload image</Label>
+              <div className="space-y-3">
+                <Label htmlFor="editor-image-file">Choose image file</Label>
                 <Input
                   id="editor-image-file"
                   type="file"
                   accept="image/*"
                   ref={imageFileRef}
-                  onChange={handleEditorImageFile}
+                  onChange={handleEditorFileSelect}
                   disabled={isImageUploading}
                 />
                 <p className="text-xs text-muted-foreground">JPG, PNG, GIF, WebP · max 5MB</p>
+                {pendingEditorObjectUrl && (
+                  <>
+                    <div className="rounded-md border overflow-hidden bg-muted max-h-48 flex items-center justify-center">
+                      <img
+                        src={pendingEditorObjectUrl}
+                        alt=""
+                        className="max-h-48 w-full object-contain"
+                      />
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      <Button
+                        type="button"
+                        size="sm"
+                        onClick={confirmEditorUpload}
+                        disabled={isImageUploading}
+                        className="gap-1"
+                      >
+                        <Check className="h-4 w-4" />
+                        {isImageUploading ? 'Uploading…' : 'Confirm upload & insert'}
+                      </Button>
+                      <Button type="button" size="sm" variant="outline" onClick={revokeEditorPending} disabled={isImageUploading}>
+                        Discard
+                      </Button>
+                    </div>
+                  </>
+                )}
               </div>
             )}
             <div className="flex gap-2 justify-end pt-2">
-              <Button type="button" variant="outline" onClick={() => setIsImageModalOpen(false)}>
+              <Button type="button" variant="outline" onClick={closeImageModal}>
                 Cancel
               </Button>
               {imageModalTab === 'url' && (

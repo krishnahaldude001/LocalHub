@@ -28,11 +28,14 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { title, content, excerpt, image, imageFocusX, category, area, author, published, youtubeUrl } = body
+    const { title, content, excerpt, image, imageFocusX, imageFocusY, category, area, author, published, youtubeUrl } = body
 
-    const focus = Number(imageFocusX)
+    const focusX = Number(imageFocusX)
     const imageFocusXClamped =
-      Number.isFinite(focus) ? Math.min(100, Math.max(0, Math.round(focus))) : 50
+      Number.isFinite(focusX) ? Math.min(100, Math.max(0, Math.round(focusX))) : 50
+    const focusY = Number(imageFocusY)
+    const imageFocusYClamped =
+      Number.isFinite(focusY) ? Math.min(100, Math.max(0, Math.round(focusY))) : 50
 
     // Validate required fields
     if (!title || !content || !category || !area || !author) {
@@ -70,6 +73,7 @@ export async function POST(request: NextRequest) {
         excerpt: excerpt || '',
         image: image || '',
         imageFocusX: imageFocusXClamped,
+        imageFocusY: imageFocusYClamped,
         category,
         area,
         author,

@@ -172,7 +172,7 @@ export default async function HomePage({
                     alt={post.title}
                     fill
                     className="object-cover group-hover:scale-105 transition-transform duration-300"
-                    style={featuredImageStyle(post.imageFocusX)}
+                    style={featuredImageStyle(post.imageFocusX, post.imageFocusY)}
                     unoptimized={post.image.startsWith('data:')}
                   />
                   {/* Gradient overlay for better text readability */}
