@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import RichTextEditor from '@/components/rich-text-editor'
+import ImageUpload from '@/components/image-upload'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Switch } from '@/components/ui/switch'
@@ -21,6 +22,7 @@ interface EditNewsFormProps {
     content: string
     excerpt?: string | null
     image?: string | null
+    imageFocusX?: number | null
     youtubeUrl?: string | null
     category: string
     area: string
@@ -40,6 +42,7 @@ export default function EditNewsForm({ post }: EditNewsFormProps) {
     content: post.content,
     excerpt: post.excerpt || '',
     image: post.image || '',
+    imageFocusX: post.imageFocusX ?? 50,
     youtubeUrl: post.youtubeUrl || '',
     category: post.category,
     area: post.area,
@@ -74,7 +77,7 @@ export default function EditNewsForm({ post }: EditNewsFormProps) {
     }
   }
 
-  const handleInputChange = (field: string, value: string | boolean) => {
+  const handleInputChange = (field: string, value: string | boolean | number) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
@@ -144,13 +147,13 @@ export default function EditNewsForm({ post }: EditNewsFormProps) {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="image">Featured Image URL</Label>
-        <Input
-          id="image"
+        <Label>Featured image</Label>
+        <ImageUpload
           value={formData.image}
-          onChange={(e) => handleInputChange('image', e.target.value)}
-          placeholder="https://example.com/image.jpg"
-          type="url"
+          onChange={(url) => handleInputChange('image', url)}
+          focusX={formData.imageFocusX}
+          onFocusXChange={(imageFocusX) => handleInputChange('imageFocusX', imageFocusX)}
+          placeholder="Image URL, Google Drive link, or upload"
         />
       </div>
 

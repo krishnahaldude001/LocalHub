@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { prisma } from '@/lib/db'
 import { config } from '@/lib/config'
 import { formatDate } from '@/lib/utils'
+import { featuredImageStyle } from '@/lib/image-url'
 import RichTextRenderer from '@/components/rich-text-renderer'
 import YouTubeEmbed from '@/components/youtube-embed'
 import { extractYouTubeFromContent, parseContentWithYouTube } from '@/lib/content-utils'
@@ -127,6 +128,8 @@ export default async function NewsPage({ params }: NewsPageProps) {
           alt={post.title}
           fill
           className="object-cover"
+          style={featuredImageStyle(post.imageFocusX)}
+          unoptimized={post.image.startsWith('data:')}
           priority
         />
       </div>
@@ -191,6 +194,8 @@ export default async function NewsPage({ params }: NewsPageProps) {
                     alt={relatedPost.title}
                     fill
                     className="object-cover"
+                    style={featuredImageStyle(relatedPost.imageFocusX)}
+                    unoptimized={relatedPost.image.startsWith('data:')}
                   />
                   <div className="absolute top-3 left-3">
                     <Badge variant="secondary" className="bg-background/80">

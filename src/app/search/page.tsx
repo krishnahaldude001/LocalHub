@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { samplePosts, sampleDeals, areas } from '@/lib/sample-data'
 import { formatDate, formatPrice, getDiscountPercentage, getPlatformColor, getPlatformName } from '@/lib/utils'
+import { featuredImageStyle } from '@/lib/image-url'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Search, MapPin, Calendar, Star, ArrowRight } from 'lucide-react'
@@ -166,6 +167,8 @@ export default function SearchPage() {
                             alt={post.title}
                             fill
                             className="object-cover"
+                            style={featuredImageStyle(post.imageFocusX)}
+                            unoptimized={post.image.startsWith('data:')}
                           />
                           <div className="absolute top-3 left-3">
                             <Badge variant="secondary" className="bg-background/80">
@@ -297,6 +300,8 @@ export default function SearchPage() {
                       alt={post.title}
                       fill
                       className="object-cover"
+                      style={featuredImageStyle(post.imageFocusX)}
+                      unoptimized={post.image.startsWith('data:')}
                     />
                     <div className="absolute top-3 left-3">
                       <Badge className="bg-gradient-primary text-white shadow-lg border-0">

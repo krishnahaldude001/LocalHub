@@ -3,8 +3,8 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { getPosts } from '@/lib/simple-db'
 import { formatDate } from '@/lib/utils'
+import { featuredImageStyle } from '@/lib/image-url'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Plus, Edit, Trash2, Eye, Calendar, MapPin, Tag } from 'lucide-react'
@@ -151,6 +151,8 @@ export default function NewsManagementPage() {
                     alt={article.title}
                     fill
                     className="object-cover"
+                    style={featuredImageStyle(article.imageFocusX)}
+                    unoptimized={typeof article.image === 'string' && article.image.startsWith('data:')}
                   />
                 </div>
 

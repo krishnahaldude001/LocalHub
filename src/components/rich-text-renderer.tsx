@@ -3,6 +3,20 @@
 import { useEffect, useRef } from 'react'
 import DOMPurify from 'dompurify'
 
+let dataImageSrcHookInstalled = false
+
+function ensureDataImageSrcHook() {
+  if (dataImageSrcHookInstalled || typeof window === 'undefined') return
+  dataImageSrcHookInstalled = true
+  DOMPurify.addHook('uponSanitizeAttribute', (node, data) => {
+    if (data.attrName !== 'src' || node.nodeName !== 'IMG') return
+    const v = String(data.attrValue || '')
+    if (/^data:image\/(png|jpe?g|gif|webp);base64,/i.test(v)) {
+      data.keepAttr = true
+    }
+  })
+}
+
 interface RichTextRendererProps {
   content: string
   className?: string
@@ -12,11 +26,12 @@ export default function RichTextRenderer({ content, className = "" }: RichTextRe
   const contentRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
+    ensureDataImageSrcHook()
     if (contentRef.current && content) {
       // Sanitize the HTML content to prevent XSS attacks
       const sanitizedContent = DOMPurify.sanitize(content, {
         ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'blockquote', 'a', 'img'],
-        ALLOWED_ATTR: ['href', 'src', 'alt', 'title', 'class']
+        ALLOWED_ATTR: ['href', 'src', 'alt', 'title', 'class'],
       })
       
       // Set the sanitized HTML content

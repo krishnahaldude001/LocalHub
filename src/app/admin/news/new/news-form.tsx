@@ -19,6 +19,7 @@ export default function NewsForm() {
     excerpt: '',
     content: '',
     image: '',
+    imageFocusX: 50,
     youtubeUrl: '',
     area: config.defaultLocation.areas[0],
     author: 'Local News Team',
@@ -168,7 +169,11 @@ export default function NewsForm() {
         <ImageUpload
           value={formData.image}
           onChange={(url) => setFormData(prev => ({ ...prev, image: url }))}
-          placeholder="Enter image URL or upload a file"
+          focusX={formData.imageFocusX}
+          onFocusXChange={(imageFocusX) =>
+            setFormData((prev) => ({ ...prev, imageFocusX }))
+          }
+          placeholder="Enter image URL, Google Drive link, or upload a file"
         />
       </div>
 

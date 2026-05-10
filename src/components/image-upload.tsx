@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
+import { normalizeImageUrlForEmbed } from '@/lib/image-url'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -11,13 +12,18 @@ import { toast } from 'sonner'
 interface ImageUploadProps {
   value?: string
   onChange: (url: string) => void
+  /** 0 = show left of frame, 100 = right; used for featured-image horizontal framing */
+  focusX?: number
+  onFocusXChange?: (value: number) => void
   placeholder?: string
   className?: string
 }
 
 export default function ImageUpload({ 
   value = '', 
-  onChange, 
+  onChange,
+  focusX = 50,
+  onFocusXChange,
   placeholder = "Enter image URL or upload a file",
   className = ""
 }: ImageUploadProps) {
@@ -26,9 +32,14 @@ export default function ImageUpload({
   const [inputMode, setInputMode] = useState<'url' | 'upload'>('url')
   const fileInputRef = useRef<HTMLInputElement>(null)
 
+  useEffect(() => {
+    setPreviewUrl(value)
+  }, [value])
+
   const handleUrlChange = (url: string) => {
-    setPreviewUrl(url)
-    onChange(url)
+    const normalized = url.trim() === '' ? '' : normalizeImageUrlForEmbed(url)
+    setPreviewUrl(normalized)
+    onChange(normalized)
   }
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -64,8 +75,9 @@ export default function ImageUpload({
       }
 
       const result = await response.json()
-      setPreviewUrl(result.url)
-      onChange(result.url)
+      const url = typeof result.url === 'string' ? result.url : ''
+      setPreviewUrl(url)
+      onChange(url)
       toast.success('Image uploaded successfully!')
     } catch (error) {
       console.error('Error uploading image:', error)
@@ -173,15 +185,37 @@ export default function ImageUpload({
               </Button>
             </div>
             <div className="mt-3">
-              <img
-                src={previewUrl}
-                alt="Preview"
-                className="w-full h-32 object-cover rounded-md border"
-                onError={() => {
-                  toast.error('Failed to load image preview')
-                  setPreviewUrl('')
-                }}
-              />
+              <div className="relative w-full h-40 overflow-hidden rounded-md border bg-muted">
+                <img
+                  src={previewUrl}
+                  alt="Preview"
+                  className="absolute inset-0 h-full w-full object-cover"
+                  style={
+                    onFocusXChange
+                      ? { objectPosition: `${focusX}% center` }
+                      : undefined
+                  }
+                  onError={() => {
+                    toast.error('Failed to load image preview')
+                    setPreviewUrl('')
+                  }}
+                />
+              </div>
+              {onFocusXChange && previewUrl && (
+                <div className="mt-3 space-y-2">
+                  <Label className="text-xs text-muted-foreground">
+                    Frame position (left ↔ right)
+                  </Label>
+                  <input
+                    type="range"
+                    min={0}
+                    max={100}
+                    value={focusX}
+                    onChange={(e) => onFocusXChange(Number(e.target.value))}
+                    className="w-full accent-primary"
+                  />
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>

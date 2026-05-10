@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { sampleDeals } from '@/lib/sample-data'
 import { config, getAreasForLocation } from '@/lib/config'
 import { formatDate, formatPrice, getDiscountPercentage, getPlatformColor, getPlatformName } from '@/lib/utils'
+import { featuredImageStyle } from '@/lib/image-url'
 import { getDeals, getPosts } from '@/lib/simple-db'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -171,6 +172,8 @@ export default async function HomePage({
                     alt={post.title}
                     fill
                     className="object-cover group-hover:scale-105 transition-transform duration-300"
+                    style={featuredImageStyle(post.imageFocusX)}
+                    unoptimized={post.image.startsWith('data:')}
                   />
                   {/* Gradient overlay for better text readability */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>

@@ -21,12 +21,20 @@ function createPrismaClient() {
       // Add parameters to disable prepared statements in development
       if (databaseUrl?.includes('postgresql://')) {
         const url = new URL(databaseUrl)
-        url.search = ''
         url.searchParams.set('prepared_statements', 'false')
         url.searchParams.set('connection_limit', '1')
         url.searchParams.set('pool_timeout', '0')
-        url.searchParams.set('connect_timeout', '10')
-        url.searchParams.set('sslmode', 'disable')
+        url.searchParams.set('connect_timeout', '30')
+        const host = url.hostname.toLowerCase()
+        const needsTls =
+          host.includes('supabase.co') ||
+          host.includes('neon.tech') ||
+          host.includes('amazonaws.com')
+        if (needsTls) {
+          url.searchParams.set('sslmode', 'require')
+        } else if (!url.searchParams.has('sslmode')) {
+          url.searchParams.set('sslmode', 'disable')
+        }
         databaseUrl = url.toString()
       }
     }

@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { prisma } from '@/lib/db'
 import { config, getAreasForLocation } from '@/lib/config'
 import { formatDate } from '@/lib/utils'
+import { featuredImageStyle } from '@/lib/image-url'
 import Link from 'next/link'
 import Image from 'next/image'
 import { ArrowRight, Calendar, MapPin, Filter } from 'lucide-react'
@@ -106,6 +107,8 @@ export default async function NewsPage({ searchParams }: NewsPageProps) {
                 alt={post.title}
                 fill
                 className="object-cover"
+                style={featuredImageStyle(post.imageFocusX)}
+                unoptimized={post.image.startsWith('data:')}
               />
               <div className="absolute top-3 left-3">
                 <Badge className="bg-gradient-primary text-white shadow-lg border-0">

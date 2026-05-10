@@ -46,7 +46,13 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'content.jdmagicbox.com',
+        hostname: 'drive.google.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'lh3.googleusercontent.com',
         port: '',
         pathname: '/**',
       },

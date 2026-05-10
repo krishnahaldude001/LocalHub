@@ -124,6 +124,8 @@ model Post {
   excerpt     String
   content     String
   image       String
+  /// Horizontal focal point for featured image (0 = left, 100 = right), used as object-position %.
+  imageFocusX Int      @default(50)
   youtubeUrl  String?
   category    String
   area        String

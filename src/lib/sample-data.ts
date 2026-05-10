@@ -5,6 +5,7 @@ export interface Post {
   excerpt: string
   content: string
   image: string
+  imageFocusX?: number
   area: string
   publishedAt: string
   author: string
