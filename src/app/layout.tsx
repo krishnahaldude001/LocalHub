@@ -7,6 +7,7 @@ import Header from '@/components/header'
 import Footer from '@/components/footer'
 import WhatsAppButton from '@/components/whatsapp-button'
 import { config } from '@/lib/config'
+import { getSiteOrigin } from '@/lib/og-url'
 import { Toaster } from 'sonner'
 import { Analytics } from '@vercel/analytics/react'
 
@@ -18,7 +19,7 @@ export const metadata: Metadata = {
   keywords: `Mumbai, ${config.defaultLocation.areas.join(', ')}, local news, deals, community, Maharashtra`,
   authors: [{ name: `${config.appName} Team` }],
   creator: config.appName,
-  metadataBase: new URL(process.env.NEXTAUTH_URL || 'http://localhost:3000'),
+  metadataBase: new URL(getSiteOrigin()),
   openGraph: {
     type: 'website',
     locale: 'en_IN',

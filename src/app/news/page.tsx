@@ -17,6 +17,19 @@ export const dynamic = 'force-dynamic'
 export const metadata: Metadata = {
   title: `Latest News | ${config.appName}`,
   description: `Stay updated with the latest news and community updates from ${config.defaultLocation.areas.join(', ')} areas.`,
+  openGraph: {
+    title: `Latest News | ${config.appName}`,
+    description: `Stay updated with the latest news and community updates from ${config.defaultLocation.areas.join(', ')} areas.`,
+    url: '/news',
+    siteName: config.appName,
+    type: 'website',
+    locale: 'en_IN',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: `Latest News | ${config.appName}`,
+    description: `Stay updated with the latest news and community updates from ${config.defaultLocation.areas.join(', ')} areas.`,
+  },
 }
 
 interface NewsPageProps {

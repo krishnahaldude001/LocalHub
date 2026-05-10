@@ -7,6 +7,7 @@ import { prisma } from '@/lib/db'
 import { config } from '@/lib/config'
 import { formatDate } from '@/lib/utils'
 import { featuredImageStyle } from '@/lib/image-url'
+import { absoluteUrlForOpenGraph } from '@/lib/og-url'
 import RichTextRenderer from '@/components/rich-text-renderer'
 import YouTubeEmbed from '@/components/youtube-embed'
 import { extractYouTubeFromContent, parseContentWithYouTube } from '@/lib/content-utils'
@@ -37,16 +38,46 @@ export async function generateMetadata({ params }: NewsPageProps): Promise<Metad
     }
   }
 
+  const description =
+    post.excerpt?.trim() ||
+    `${post.title} — ${post.area} · ${config.appName}`
+
+  const ogImage = absoluteUrlForOpenGraph(post.image)
+  const canonicalPath = `/news/${post.slug}`
+
   return {
-    title: `${post.title} - ${config.appName}`,
-    description: post.excerpt,
+    title: `${post.title} | ${config.appName}`,
+    description,
+    alternates: {
+      canonical: canonicalPath,
+    },
     openGraph: {
       title: post.title,
-      description: post.excerpt,
-      images: [post.image],
+      description,
+      url: canonicalPath,
+      siteName: config.appName,
+      locale: 'en_IN',
       type: 'article',
       publishedTime: post.publishedAt.toISOString(),
       authors: [post.author],
+      ...(ogImage
+        ? {
+            images: [
+              {
+                url: ogImage,
+                width: 1200,
+                height: 630,
+                alt: post.title,
+              },
+            ],
+          }
+        : {}),
+    },
+    twitter: {
+      card: ogImage ? 'summary_large_image' : 'summary',
+      title: post.title,
+      description,
+      ...(ogImage ? { images: [ogImage] } : {}),
     },
   }
 }
