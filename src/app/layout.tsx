@@ -7,43 +7,46 @@ import Header from '@/components/header'
 import Footer from '@/components/footer'
 import WhatsAppButton from '@/components/whatsapp-button'
 import { config } from '@/lib/config'
-import { getSiteOrigin } from '@/lib/og-url'
+import { getPublicSiteOrigin } from '@/lib/og-url'
 import { Toaster } from 'sonner'
 import { Analytics } from '@vercel/analytics/react'
 
 const inter = Inter({ subsets: ['latin'] })
 
-export const metadata: Metadata = {
-  title: `${config.appName} - Mumbai Local News & Deals`,
-  description: `${config.appDescription} in Mumbai - covering ${config.defaultLocation.areas.slice(0, 5).join(', ')} and more areas.`,
-  keywords: `Mumbai, ${config.defaultLocation.areas.join(', ')}, local news, deals, community, Maharashtra`,
-  authors: [{ name: `${config.appName} Team` }],
-  creator: config.appName,
-  metadataBase: new URL(getSiteOrigin()),
-  openGraph: {
-    type: 'website',
-    locale: 'en_IN',
-    url: config.appUrl,
+export async function generateMetadata(): Promise<Metadata> {
+  const origin = getPublicSiteOrigin().replace(/\/$/, '')
+  return {
     title: `${config.appName} - Mumbai Local News & Deals`,
     description: `${config.appDescription} in Mumbai - covering ${config.defaultLocation.areas.slice(0, 5).join(', ')} and more areas.`,
-    siteName: config.appName,
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: `${config.appName} - Mumbai Local News & Deals`,
-    description: `${config.appDescription} in Mumbai - covering ${config.defaultLocation.areas.slice(0, 5).join(', ')} and more areas.`,
-  },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
+    keywords: `Mumbai, ${config.defaultLocation.areas.join(', ')}, local news, deals, community, Maharashtra`,
+    authors: [{ name: `${config.appName} Team` }],
+    creator: config.appName,
+    metadataBase: new URL(origin),
+    openGraph: {
+      type: 'website',
+      locale: 'en_IN',
+      url: `${origin}/`,
+      title: `${config.appName} - Mumbai Local News & Deals`,
+      description: `${config.appDescription} in Mumbai - covering ${config.defaultLocation.areas.slice(0, 5).join(', ')} and more areas.`,
+      siteName: config.appName,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${config.appName} - Mumbai Local News & Deals`,
+      description: `${config.appDescription} in Mumbai - covering ${config.defaultLocation.areas.slice(0, 5).join(', ')} and more areas.`,
+    },
+    robots: {
       index: true,
       follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
+      googleBot: {
+        index: true,
+        follow: true,
+        'max-video-preview': -1,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
+      },
     },
-  },
+  }
 }
 
 export default function RootLayout({

@@ -6,8 +6,8 @@ import { Button } from '@/components/ui/button'
 import { prisma } from '@/lib/db'
 import { config } from '@/lib/config'
 import { formatDate } from '@/lib/utils'
-import { featuredImageStyle } from '@/lib/image-url'
-import { absoluteUrlForOpenGraph } from '@/lib/og-url'
+import { featuredImageStyle, normalizeImageUrlForEmbed } from '@/lib/image-url'
+import { absoluteUrlForOpenGraph, getPublicSiteOrigin } from '@/lib/og-url'
 import RichTextRenderer from '@/components/rich-text-renderer'
 import YouTubeEmbed from '@/components/youtube-embed'
 import { extractYouTubeFromContent, parseContentWithYouTube } from '@/lib/content-utils'
@@ -42,19 +42,22 @@ export async function generateMetadata({ params }: NewsPageProps): Promise<Metad
     post.excerpt?.trim() ||
     `${post.title} — ${post.area} · ${config.appName}`
 
-  const ogImage = absoluteUrlForOpenGraph(post.image)
-  const canonicalPath = `/news/${post.slug}`
+  const origin = getPublicSiteOrigin().replace(/\/$/, '')
+  const canonicalUrl = `${origin}/news/${post.slug}`
+  const rawImage = (post.image || '').trim()
+  const imageForOg = rawImage ? normalizeImageUrlForEmbed(rawImage) : ''
+  const ogImage = absoluteUrlForOpenGraph(imageForOg || null, origin)
 
   return {
     title: `${post.title} | ${config.appName}`,
     description,
     alternates: {
-      canonical: canonicalPath,
+      canonical: canonicalUrl,
     },
     openGraph: {
       title: post.title,
       description,
-      url: canonicalPath,
+      url: canonicalUrl,
       siteName: config.appName,
       locale: 'en_IN',
       type: 'article',

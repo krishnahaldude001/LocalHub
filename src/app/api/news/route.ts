@@ -4,16 +4,7 @@ import { serializeContentWithYouTube } from '@/lib/content-utils'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { hasPermission, type UserRole } from '@/lib/roles'
-
-// Function to generate a URL-friendly slug
-function generateSlug(title: string): string {
-  return title
-    .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
-    .replace(/\s+/g, '-') // Replace spaces with hyphens
-    .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
-    .trim()
-}
+import { slugFromTitle } from '@/lib/news-slug'
 
 export async function POST(request: NextRequest) {
   const prisma = createPrismaClient()
@@ -49,7 +40,7 @@ export async function POST(request: NextRequest) {
     const serializedContent = serializeContentWithYouTube({ content, youtubeUrl })
 
     // Generate a unique slug
-    const baseSlug = generateSlug(title)
+    const baseSlug = slugFromTitle(title)
     let slug = baseSlug
     let counter = 1
 
