@@ -21,7 +21,7 @@ export default function SocialMediaButtons({
     {
       name: 'WhatsApp',
       icon: MessageCircle,
-      url: config.social.whatsapp,
+      url: (config.social.whatsapp || '').trim(),
       color: 'text-green-600 hover:text-green-700',
       bgColor: 'hover:bg-green-50'
     },
@@ -48,9 +48,11 @@ export default function SocialMediaButtons({
     }
   ]
 
+  const visible = socialLinks.filter((s) => s.url)
+
   return (
     <div className={`flex items-center gap-2 ${className}`}>
-      {socialLinks.map((social) => {
+      {visible.map((social) => {
         const Icon = social.icon
         return (
           <Button

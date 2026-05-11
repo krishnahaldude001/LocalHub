@@ -8,7 +8,7 @@ import Link from 'next/link'
 import { Mail, Phone, MapPin, MessageSquare, Send, Clock, Users, MessageCircle } from 'lucide-react'
 import { config } from '@/lib/config'
 import SocialMediaButtons from '@/components/social-media-buttons'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo, type ReactNode } from 'react'
 import { toast } from 'sonner'
 
 export default function ContactPage() {
@@ -23,8 +23,8 @@ export default function ContactPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [contactInfo, setContactInfo] = useState({
     email: 'admin@localhub.space',
-    phone: '+91-8169321761',
-    whatsapp: '+91-8169321761',
+    phone: '',
+    whatsapp: '',
     address: 'Mumbai, Maharashtra, India',
     businessHours: '9:00 AM - 6:00 PM (Mon-Fri), 10:00 AM - 4:00 PM (Sat)'
   })
@@ -81,48 +81,72 @@ export default function ContactPage() {
   }
 
   const handleWhatsAppClick = () => {
+    const wa = (contactInfo.whatsapp || '').replace(/\D/g, '')
+    if (!wa) {
+      toast.error('WhatsApp is not configured for this site.')
+      return
+    }
     const message = encodeURIComponent(
-      `Hi Krishna, I came from your website.\n\n` +
-      `Name: ${formData.firstName} ${formData.lastName}\n` +
-      `Email: ${formData.email}\n` +
-      `Phone: ${formData.phone}\n\n` +
-      `Message: ${formData.message || 'I have a general inquiry.'}`
+      `Hi, I came from ${config.appName}.\n\n` +
+        `Name: ${formData.firstName} ${formData.lastName}\n` +
+        `Email: ${formData.email}\n` +
+        `Phone: ${formData.phone}\n\n` +
+        `Message: ${formData.message || 'I have a general inquiry.'}`
     )
-    const whatsappUrl = `https://wa.me/918169321761?text=${message}`
-    window.open(whatsappUrl, '_blank')
+    window.open(`https://wa.me/${wa}?text=${message}`, '_blank', 'noopener,noreferrer')
   }
 
-  const contactMethods = [
-    {
-      icon: <Mail className="h-6 w-6 text-primary" />,
-      title: 'Email',
-      value: contactInfo.email,
-      description: 'Send us an email anytime',
-      link: `mailto:${contactInfo.email}`
-    },
-    {
-      icon: <Phone className="h-6 w-6 text-primary" />,
-      title: 'Phone',
-      value: contactInfo.phone,
-      description: 'Call us during business hours',
-      link: `tel:${contactInfo.phone.replace(/\s/g, '')}`
-    },
-    {
-      icon: <MessageCircle className="h-6 w-6 text-green-500" />,
-      title: 'WhatsApp',
-      value: contactInfo.whatsapp,
-      description: 'Chat with us instantly',
-      link: `https://wa.me/918169321761?text=Hi%20Krishna%2C%20I%20came%20from%20your%20website`,
-      isWhatsApp: true
-    },
-    {
+  const contactMethods = useMemo(() => {
+    const methods: {
+      icon: ReactNode
+      title: string
+      value: string
+      description: string
+      link: string
+      isWhatsApp?: boolean
+    }[] = [
+      {
+        icon: <Mail className="h-6 w-6 text-primary" />,
+        title: 'Email',
+        value: contactInfo.email,
+        description: 'Send us an email anytime',
+        link: `mailto:${contactInfo.email}`,
+      },
+    ]
+
+    const phoneDigits = (contactInfo.phone || '').replace(/\D/g, '')
+    if (phoneDigits) {
+      methods.push({
+        icon: <Phone className="h-6 w-6 text-primary" />,
+        title: 'Phone',
+        value: contactInfo.phone,
+        description: 'Call us during business hours',
+        link: `tel:${contactInfo.phone.replace(/\s/g, '')}`,
+      })
+    }
+
+    const waDigits = (contactInfo.whatsapp || '').replace(/\D/g, '')
+    if (waDigits) {
+      methods.push({
+        icon: <MessageCircle className="h-6 w-6 text-green-500" />,
+        title: 'WhatsApp',
+        value: contactInfo.whatsapp,
+        description: 'Chat with us instantly',
+        link: `https://wa.me/${waDigits}?text=${encodeURIComponent(`Hi, I came from ${config.appName}`)}`,
+        isWhatsApp: true,
+      })
+    }
+
+    methods.push({
       icon: <MapPin className="h-6 w-6 text-primary" />,
       title: 'Office',
       value: contactInfo.address,
       description: 'Based in Mumbai, serving local communities',
-      link: '#'
-    }
-  ]
+      link: '#',
+    })
+
+    return methods
+  }, [contactInfo])
 
   const businessHours = [
     { day: 'Business Hours', hours: contactInfo.businessHours }
@@ -268,15 +292,17 @@ export default function ContactPage() {
                     <Send className="h-4 w-4 mr-2" />
                     {isSubmitting ? 'Sending...' : 'Send via Email'}
                   </Button>
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    onClick={handleWhatsAppClick}
-                    className="flex-1 bg-green-50 border-green-200 text-green-700 hover:bg-green-100"
-                  >
-                    <MessageCircle className="h-4 w-4 mr-2" />
-                    Send via WhatsApp
-                  </Button>
+                  {(contactInfo.whatsapp || '').replace(/\D/g, '') ? (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleWhatsAppClick}
+                      className="flex-1 bg-green-50 border-green-200 text-green-700 hover:bg-green-100"
+                    >
+                      <MessageCircle className="h-4 w-4 mr-2" />
+                      Send via WhatsApp
+                    </Button>
+                  ) : null}
                 </div>
               </form>
             </CardContent>

@@ -2,6 +2,7 @@
 
 import { Button } from '@/components/ui/button'
 import { MessageCircle } from 'lucide-react'
+import { config } from '@/lib/config'
 
 interface WhatsAppContactProps {
   message?: string
@@ -11,21 +12,30 @@ interface WhatsAppContactProps {
   children?: React.ReactNode
 }
 
-export default function WhatsAppContact({ 
-  message = "Hi Krishna, I came from your website", 
-  className = "",
-  variant = "default",
-  size = "default",
-  children
+function whatsappDigits(): string {
+  return (config.contact.whatsapp || '').replace(/\D/g, '')
+}
+
+export default function WhatsAppContact({
+  message,
+  className = '',
+  variant = 'default',
+  size = 'default',
+  children,
 }: WhatsAppContactProps) {
+  const digits = whatsappDigits()
+  if (!digits) return null
+
+  const defaultMessage = `Hi, I came from ${config.appName}`
+  const text = message?.trim() || defaultMessage
+
   const handleWhatsAppClick = () => {
-    const encodedMessage = encodeURIComponent(message)
-    const whatsappUrl = `https://wa.me/918169321761?text=${encodedMessage}`
-    window.open(whatsappUrl, '_blank')
+    const encodedMessage = encodeURIComponent(text)
+    window.open(`https://wa.me/${digits}?text=${encodedMessage}`, '_blank', 'noopener,noreferrer')
   }
 
   return (
-    <Button 
+    <Button
       onClick={handleWhatsAppClick}
       className={`bg-green-600 hover:bg-green-700 text-white ${className}`}
       variant={variant}

@@ -1,10 +1,10 @@
 // Admin contact information for shop activation
 export const adminConfig = {
   contact: {
-    email: "admin@govandihub.com", // Replace with your actual email
-    whatsapp: "+91-9876543210", // Replace with your actual WhatsApp number
-    phone: "+91-9876543210", // Replace with your actual phone number
-    businessName: "Govandi Hub"
+    email: 'admin@localhub.space',
+    whatsapp: '',
+    phone: '',
+    businessName: 'LocalHub'
   },
   activation: {
     fee: 500, // Monthly fee in INR

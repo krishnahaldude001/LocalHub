@@ -140,7 +140,9 @@ export default function SiteSettingsPage() {
                 <h4 className="font-medium mb-2">Contact Details</h4>
                 <div className="p-3 bg-muted rounded-lg space-y-1 text-sm">
                   <p><strong>Email:</strong> {config.contact.email}</p>
-                  <p><strong>Phone:</strong> {config.contact.phone}</p>
+                  {config.contact.phone ? (
+                    <p><strong>Phone:</strong> {config.contact.phone}</p>
+                  ) : null}
                   <p><strong>Address:</strong> {config.contact.address}</p>
                 </div>
               </div>
@@ -148,7 +150,9 @@ export default function SiteSettingsPage() {
               <div>
                 <h4 className="font-medium mb-2">Social Media</h4>
                 <div className="p-3 bg-muted rounded-lg space-y-1 text-sm">
-                  <p><strong>WhatsApp:</strong> {config.social.whatsapp}</p>
+                  {config.social.whatsapp ? (
+                    <p><strong>WhatsApp:</strong> {config.social.whatsapp}</p>
+                  ) : null}
                   <p><strong>Twitter:</strong> {config.social.twitter}</p>
                   <p><strong>Facebook:</strong> {config.social.facebook}</p>
                   <p><strong>Instagram:</strong> {config.social.instagram}</p>

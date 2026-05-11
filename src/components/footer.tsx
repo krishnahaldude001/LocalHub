@@ -86,15 +86,13 @@ export default function Footer() {
                 Follow us on social media for the latest updates and community news.
               </p>
               <SocialMediaButtons variant="outline" size="sm" />
-              <WhatsAppContact 
-                message="Hi Krishna, I came from your website"
+              <WhatsAppContact
                 variant="outline"
                 size="sm"
                 className="w-full"
               />
               <div className="text-xs text-muted-foreground">
                 <p>📧 {config.contact.email}</p>
-                <p>📱 {config.contact.phone}</p>
               </div>
             </div>
           </div>

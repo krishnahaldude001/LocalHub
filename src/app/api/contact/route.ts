@@ -9,8 +9,8 @@ export async function GET() {
       // Return default contact info if model doesn't exist yet
       return NextResponse.json({
         email: 'admin@localhub.space',
-        phone: '+91-9876543210',
-        whatsapp: '+91-9876543210',
+        phone: '',
+        whatsapp: '',
         address: 'Mumbai, Maharashtra, India',
         businessHours: '9:00 AM - 6:00 PM (Mon-Fri), 10:00 AM - 4:00 PM (Sat)'
       })
@@ -25,8 +25,8 @@ export async function GET() {
       // Return default contact info if none exists
       return NextResponse.json({
         email: 'admin@localhub.space',
-        phone: '+91-9876543210',
-        whatsapp: '+91-9876543210',
+        phone: '',
+        whatsapp: '',
         address: 'Mumbai, Maharashtra, India',
         businessHours: '9:00 AM - 6:00 PM (Mon-Fri), 10:00 AM - 4:00 PM (Sat)'
       })
@@ -38,8 +38,8 @@ export async function GET() {
     // Return default contact info on any error
     return NextResponse.json({
       email: 'admin@localhub.space',
-      phone: '+91-9876543210',
-      whatsapp: '+91-9876543210',
+      phone: '',
+      whatsapp: '',
       address: 'Mumbai, Maharashtra, India',
       businessHours: '9:00 AM - 6:00 PM (Mon-Fri), 10:00 AM - 4:00 PM (Sat)'
     })

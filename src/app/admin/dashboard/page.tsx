@@ -296,10 +296,12 @@ export default async function AdminDashboard() {
               <span className="text-sm">Email</span>
               <Badge variant="secondary">{config.contact.email}</Badge>
             </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm">Phone</span>
-              <Badge variant="secondary">{config.contact.phone}</Badge>
-            </div>
+            {config.contact.phone ? (
+              <div className="flex items-center justify-between">
+                <span className="text-sm">Phone</span>
+                <Badge variant="secondary">{config.contact.phone}</Badge>
+              </div>
+            ) : null}
             <div className="flex gap-2">
               <Link href="/admin/contact" className="flex-1">
                 <Button className="w-full" size="sm">

@@ -57,15 +57,19 @@ export default function ShopActivationMessage({
   const statusInfo = getStatusInfo()
 
   const handleContact = (method: 'email' | 'whatsapp' | 'phone') => {
+    const wa = (adminConfig.contact.whatsapp || '').replace(/\D/g, '')
+    const tel = (adminConfig.contact.phone || '').replace(/\D/g, '')
     switch (method) {
       case 'email':
         window.open(`mailto:${adminConfig.contact.email}?subject=Shop Activation - ${shopName || 'New Shop'}`)
         break
       case 'whatsapp':
-        const whatsappMessage = `Hi, I want to activate my shop account "${shopName || 'New Shop'}" on Govandi Hub. Please provide payment details.`
-        window.open(`https://wa.me/${adminConfig.contact.whatsapp.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(whatsappMessage)}`)
+        if (!wa) return
+        const whatsappMessage = `Hi, I want to activate my shop account "${shopName || 'New Shop'}" on ${adminConfig.contact.businessName}. Please provide payment details.`
+        window.open(`https://wa.me/${wa}?text=${encodeURIComponent(whatsappMessage)}`, '_blank', 'noopener,noreferrer')
         break
       case 'phone':
+        if (!tel) return
         window.open(`tel:${adminConfig.contact.phone}`)
         break
     }
@@ -111,30 +115,34 @@ export default function ShopActivationMessage({
           <div>
             <h3 className="font-semibold mb-3">Contact Us for Payment</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="flex items-center gap-2"
                 onClick={() => handleContact('email')}
               >
                 <Mail className="h-4 w-4" />
                 Email
               </Button>
-              <Button 
-                variant="outline" 
-                className="flex items-center gap-2"
-                onClick={() => handleContact('whatsapp')}
-              >
-                <MessageCircle className="h-4 w-4" />
-                WhatsApp
-              </Button>
-              <Button 
-                variant="outline" 
-                className="flex items-center gap-2"
-                onClick={() => handleContact('phone')}
-              >
-                <Phone className="h-4 w-4" />
-                Call
-              </Button>
+              {(adminConfig.contact.whatsapp || '').replace(/\D/g, '') ? (
+                <Button
+                  variant="outline"
+                  className="flex items-center gap-2"
+                  onClick={() => handleContact('whatsapp')}
+                >
+                  <MessageCircle className="h-4 w-4" />
+                  WhatsApp
+                </Button>
+              ) : null}
+              {(adminConfig.contact.phone || '').replace(/\D/g, '') ? (
+                <Button
+                  variant="outline"
+                  className="flex items-center gap-2"
+                  onClick={() => handleContact('phone')}
+                >
+                  <Phone className="h-4 w-4" />
+                  Call
+                </Button>
+              ) : null}
             </div>
           </div>
 
@@ -143,8 +151,12 @@ export default function ShopActivationMessage({
             <h4 className="font-medium mb-2">Our Contact Details:</h4>
             <div className="space-y-1 text-sm text-gray-600">
               <p><strong>Email:</strong> {adminConfig.contact.email}</p>
-              <p><strong>WhatsApp:</strong> {adminConfig.contact.whatsapp}</p>
-              <p><strong>Phone:</strong> {adminConfig.contact.phone}</p>
+              {(adminConfig.contact.whatsapp || '').replace(/\D/g, '') ? (
+                <p><strong>WhatsApp:</strong> {adminConfig.contact.whatsapp}</p>
+              ) : null}
+              {(adminConfig.contact.phone || '').replace(/\D/g, '') ? (
+                <p><strong>Phone:</strong> {adminConfig.contact.phone}</p>
+              ) : null}
             </div>
           </div>
         </CardContent>
@@ -156,11 +168,13 @@ export default function ShopActivationMessage({
             <p className="text-gray-600">
               Your account has been temporarily suspended. Please contact us to resolve this issue.
             </p>
-            <div className="flex justify-center gap-3">
-              <Button onClick={() => handleContact('whatsapp')}>
-                <MessageCircle className="h-4 w-4 mr-2" />
-                Contact WhatsApp
-              </Button>
+            <div className="flex justify-center gap-3 flex-wrap">
+              {(adminConfig.contact.whatsapp || '').replace(/\D/g, '') ? (
+                <Button onClick={() => handleContact('whatsapp')}>
+                  <MessageCircle className="h-4 w-4 mr-2" />
+                  Contact WhatsApp
+                </Button>
+              ) : null}
               <Button variant="outline" onClick={() => handleContact('email')}>
                 <Mail className="h-4 w-4 mr-2" />
                 Send Email
@@ -176,14 +190,22 @@ export default function ShopActivationMessage({
             <p className="text-gray-600">
               Your account activation was rejected. Please contact us for more information and to reapply.
             </p>
-            <div className="flex justify-center gap-3">
-              <Button onClick={() => handleContact('whatsapp')}>
-                <MessageCircle className="h-4 w-4 mr-2" />
-                Contact WhatsApp
-              </Button>
-              <Button variant="outline" onClick={() => handleContact('phone')}>
-                <Phone className="h-4 w-4 mr-2" />
-                Call Us
+            <div className="flex justify-center gap-3 flex-wrap">
+              {(adminConfig.contact.whatsapp || '').replace(/\D/g, '') ? (
+                <Button onClick={() => handleContact('whatsapp')}>
+                  <MessageCircle className="h-4 w-4 mr-2" />
+                  Contact WhatsApp
+                </Button>
+              ) : null}
+              {(adminConfig.contact.phone || '').replace(/\D/g, '') ? (
+                <Button variant="outline" onClick={() => handleContact('phone')}>
+                  <Phone className="h-4 w-4 mr-2" />
+                  Call Us
+                </Button>
+              ) : null}
+              <Button variant="outline" onClick={() => handleContact('email')}>
+                <Mail className="h-4 w-4 mr-2" />
+                Send Email
               </Button>
             </div>
           </div>

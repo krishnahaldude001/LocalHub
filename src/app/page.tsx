@@ -117,13 +117,11 @@ export default async function HomePage({
             </div>
           </div>
           
-          {/* WhatsApp Contact Button */}
-          <div className="mt-8">
-            <WhatsAppContact 
-              message="Hi Krishna, I came from your website"
-              className="shadow-lg"
-            />
-          </div>
+          {(config.contact.whatsapp || '').replace(/\D/g, '') ? (
+            <div className="mt-8">
+              <WhatsAppContact className="shadow-lg" />
+            </div>
+          ) : null}
         </div>
       </div>
 
