@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { query } from '@/lib/simple-db'
+import { prisma } from '@/lib/db'
+import { serializeContentWithYouTube } from '@/lib/content-utils'
+import { normalizeGoogleDrivePdfEmbedUrl } from '@/lib/google-drive-pdf-embed'
 
 export async function PUT(
   request: NextRequest,
@@ -7,7 +9,20 @@ export async function PUT(
 ) {
   try {
     const body = await request.json()
-    const { title, content, excerpt, image, imageFocusX, imageFocusY, youtubeUrl, category, area, author, published } = body
+    const {
+      title,
+      content,
+      excerpt,
+      image,
+      imageFocusX,
+      imageFocusY,
+      youtubeUrl,
+      category,
+      area,
+      author,
+      published,
+      embeddedPdfUrl,
+    } = body
 
     const focusX = Number(imageFocusX)
     const imageFocusXClamped =
@@ -16,41 +31,50 @@ export async function PUT(
     const imageFocusYClamped =
       Number.isFinite(focusY) ? Math.min(100, Math.max(0, Math.round(focusY))) : 50
 
-    // Validate required fields
     if (!title || !content || !category || !area || !author) {
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
+    }
+
+    const embeddedPdfUrlTrimmed =
+      typeof embeddedPdfUrl === 'string' ? embeddedPdfUrl.trim() : ''
+    const embeddedPdfNormalized =
+      embeddedPdfUrlTrimmed === ''
+        ? null
+        : normalizeGoogleDrivePdfEmbedUrl(embeddedPdfUrlTrimmed)
+    if (embeddedPdfUrlTrimmed && !embeddedPdfNormalized) {
       return NextResponse.json(
-        { error: 'Missing required fields' },
+        {
+          error:
+            'Invalid Google Drive link. Paste a shared file URL (Anyone with the link can view).',
+        },
         { status: 400 }
       )
     }
 
-    // Update the post
-    await query(`
-      UPDATE posts 
-      SET 
-        title = $1,
-        content = $2,
-        excerpt = $3,
-        image = $4,
-        "youtubeUrl" = $5,
-        category = $6,
-        area = $7,
-        author = $8,
-        published = $9,
-        "imageFocusX" = $10,
-        "imageFocusY" = $11,
-        "updatedAt" = NOW()
-      WHERE id = $12
-    `, [title, content, excerpt, image, youtubeUrl, category, area, author, published, imageFocusXClamped, imageFocusYClamped, params.id])
+    const serializedContent = serializeContentWithYouTube({ content, youtubeUrl })
+
+    await prisma.post.update({
+      where: { id: params.id },
+      data: {
+        title,
+        content: serializedContent,
+        excerpt,
+        image,
+        youtubeUrl: youtubeUrl || null,
+        category,
+        area,
+        author,
+        published,
+        imageFocusX: imageFocusXClamped,
+        imageFocusY: imageFocusYClamped,
+        embeddedPdfUrl: embeddedPdfNormalized,
+      },
+    })
 
     return NextResponse.json({ success: true })
-
   } catch (error) {
     console.error('Error updating news article:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
 
@@ -59,16 +83,13 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    // Delete the post
-    await query('DELETE FROM posts WHERE id = $1', [params.id])
+    await prisma.post.delete({
+      where: { id: params.id },
+    })
 
     return NextResponse.json({ success: true })
-
   } catch (error) {
     console.error('Error deleting news article:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

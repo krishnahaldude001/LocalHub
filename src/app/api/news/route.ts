@@ -5,6 +5,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { hasPermission, type UserRole } from '@/lib/roles'
 import { slugFromTitle } from '@/lib/news-slug'
+import { normalizeGoogleDrivePdfEmbedUrl } from '@/lib/google-drive-pdf-embed'
 
 export async function POST(request: NextRequest) {
   const prisma = createPrismaClient()
@@ -19,7 +20,36 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { title, content, excerpt, image, imageFocusX, imageFocusY, category, area, author, published, youtubeUrl } = body
+    const {
+      title,
+      content,
+      excerpt,
+      image,
+      imageFocusX,
+      imageFocusY,
+      category,
+      area,
+      author,
+      published,
+      youtubeUrl,
+      embeddedPdfUrl,
+    } = body
+
+    const embeddedPdfUrlTrimmed =
+      typeof embeddedPdfUrl === 'string' ? embeddedPdfUrl.trim() : ''
+    const embeddedPdfNormalized =
+      embeddedPdfUrlTrimmed === ''
+        ? null
+        : normalizeGoogleDrivePdfEmbedUrl(embeddedPdfUrlTrimmed)
+    if (embeddedPdfUrlTrimmed && !embeddedPdfNormalized) {
+      return NextResponse.json(
+        {
+          error:
+            'Invalid Google Drive link. Paste a shared file URL (Anyone with the link can view).',
+        },
+        { status: 400 }
+      )
+    }
 
     const focusX = Number(imageFocusX)
     const imageFocusXClamped =
@@ -69,7 +99,8 @@ export async function POST(request: NextRequest) {
         area,
         author,
         published: published !== false, // Default to true if not specified
-        youtubeUrl: youtubeUrl || null
+        youtubeUrl: youtubeUrl || null,
+        embeddedPdfUrl: embeddedPdfNormalized,
       }
     })
 
@@ -84,7 +115,5 @@ export async function POST(request: NextRequest) {
       { error: 'Internal server error' },
       { status: 500 }
     )
-  } finally {
-    await prisma.$disconnect()
   }
 }

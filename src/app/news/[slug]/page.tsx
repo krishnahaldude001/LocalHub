@@ -10,6 +10,7 @@ import { featuredImageStyle, normalizeImageUrlForEmbed } from '@/lib/image-url'
 import { absoluteUrlForOpenGraph, getPublicSiteOrigin } from '@/lib/og-url'
 import RichTextRenderer from '@/components/rich-text-renderer'
 import YouTubeEmbed from '@/components/youtube-embed'
+import EmbeddedGoogleDrivePdf from '@/components/embedded-google-drive-pdf'
 import { extractYouTubeFromContent, parseContentWithYouTube } from '@/lib/content-utils'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -185,6 +186,10 @@ export default async function NewsPage({ params }: NewsPageProps) {
               />
             </div>
           )}
+          
+          {post.embeddedPdfUrl ? (
+            <EmbeddedGoogleDrivePdf embedUrl={post.embeddedPdfUrl} title={`PDF · ${post.title}`} />
+          ) : null}
           
           <div className="text-base leading-relaxed">
             <RichTextRenderer content={parsedContent.content} />

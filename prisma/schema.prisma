@@ -129,6 +129,8 @@ model Post {
   /// Vertical focal point (0 = top, 100 = bottom).
   imageFocusY Int      @default(50)
   youtubeUrl  String?
+  /// Google Drive PDF (or compatible file): stored as embed URL ending in /preview
+  embeddedPdfUrl String?
   category    String
   area        String
   author      String

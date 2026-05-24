@@ -25,6 +25,7 @@ interface EditNewsFormProps {
     imageFocusX?: number | null
     imageFocusY?: number | null
     youtubeUrl?: string | null
+    embeddedPdfUrl?: string | null
     category: string
     area: string
     author: string
@@ -46,6 +47,7 @@ export default function EditNewsForm({ post }: EditNewsFormProps) {
     imageFocusX: post.imageFocusX ?? 50,
     imageFocusY: post.imageFocusY ?? 50,
     youtubeUrl: post.youtubeUrl || '',
+    embeddedPdfUrl: post.embeddedPdfUrl || '',
     category: post.category,
     area: post.area,
     author: post.author,
@@ -69,7 +71,14 @@ export default function EditNewsForm({ post }: EditNewsFormProps) {
         toast.success('News article updated successfully!')
         router.push('/admin/news')
       } else {
-        toast.error('Failed to update news article')
+        let message = 'Failed to update news article'
+        try {
+          const body = await response.json()
+          if (typeof body?.error === 'string') message = body.error
+        } catch {
+          /* ignore */
+        }
+        toast.error(message)
       }
     } catch (error) {
       console.error('Error updating news article:', error)
@@ -172,6 +181,21 @@ export default function EditNewsForm({ post }: EditNewsFormProps) {
         />
         <p className="text-sm text-muted-foreground">
           Add a YouTube video URL to embed a video in your article
+        </p>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="embeddedPdfUrl">Embed PDF from Google Drive (Optional)</Label>
+        <Input
+          id="embeddedPdfUrl"
+          type="url"
+          value={formData.embeddedPdfUrl}
+          onChange={(e) => handleInputChange('embeddedPdfUrl', e.target.value)}
+          placeholder="https://drive.google.com/file/d/…/view?usp=sharing"
+        />
+        <p className="text-sm text-muted-foreground">
+          Paste a Drive file share link — the PDF appears in the article. Use &quot;Anyone with the link&quot; viewer
+          access.
         </p>
       </div>
 

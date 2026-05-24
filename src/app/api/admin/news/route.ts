@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/db'
+import { normalizeGoogleDrivePdfEmbedUrl } from '@/lib/google-drive-pdf-embed'
 
 // GET /api/admin/news - Get all news articles
 export async function GET() {
@@ -33,7 +34,33 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { title, excerpt, content, image, category, area, author, published = true } = body
+    const {
+      title,
+      excerpt,
+      content,
+      image,
+      category,
+      area,
+      author,
+      published = true,
+      embeddedPdfUrl,
+    } = body
+
+    const embeddedPdfUrlTrimmed =
+      typeof embeddedPdfUrl === 'string' ? embeddedPdfUrl.trim() : ''
+    const embeddedPdfNormalized =
+      embeddedPdfUrlTrimmed === ''
+        ? null
+        : normalizeGoogleDrivePdfEmbedUrl(embeddedPdfUrlTrimmed)
+    if (embeddedPdfUrlTrimmed && !embeddedPdfNormalized) {
+      return NextResponse.json(
+        {
+          error:
+            'Invalid Google Drive link. Paste a shared file URL (Anyone with the link can view).',
+        },
+        { status: 400 }
+      )
+    }
 
     // Generate slug from title
     const slug = title
@@ -52,6 +79,7 @@ export async function POST(request: NextRequest) {
         area,
         author,
         published,
+        embeddedPdfUrl: embeddedPdfNormalized,
       },
     })
 

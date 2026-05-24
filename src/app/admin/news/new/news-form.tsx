@@ -22,6 +22,7 @@ export default function NewsForm() {
     imageFocusX: 50,
     imageFocusY: 50,
     youtubeUrl: '',
+    embeddedPdfUrl: '',
     area: config.defaultLocation.areas[0],
     author: 'Local News Team',
     category: 'General'
@@ -49,6 +50,15 @@ export default function NewsForm() {
       })
 
       if (!response.ok) {
+        try {
+          const err = await response.json()
+          if (typeof err?.error === 'string') {
+            alert(err.error)
+            return
+          }
+        } catch {
+          /* ignore */
+        }
         throw new Error('Failed to create article')
       }
 
@@ -195,6 +205,23 @@ export default function NewsForm() {
         />
         <p className="text-sm text-muted-foreground">
           Add a YouTube video URL to embed a video in your article
+        </p>
+      </div>
+
+      {/* Embedded Drive PDF */}
+      <div className="space-y-2">
+        <Label htmlFor="embeddedPdfUrl">Embed PDF from Google Drive (Optional)</Label>
+        <Input
+          id="embeddedPdfUrl"
+          name="embeddedPdfUrl"
+          type="url"
+          value={formData.embeddedPdfUrl}
+          onChange={handleInputChange}
+          placeholder="https://drive.google.com/file/d/…/view?usp=sharing"
+        />
+        <p className="text-sm text-muted-foreground">
+          Paste a Drive file share link — the PDF will appear inside the article. The file must be shared as
+          &quot;Anyone with the link&quot; so the viewer loads.
         </p>
       </div>
 
